@@ -17,7 +17,11 @@ export default function PistonCompiler() {
         java: "java",
         html: "html"
     };
-
+    function ClearAll(e){
+        setCode('')
+        setOutput('')
+        setLang(e.target.value)
+    }
     const runCode = async () => {
         setLoading(true);
         try {
@@ -50,14 +54,14 @@ export default function PistonCompiler() {
                 </label>
                 <select
                     value={lang}
-                    onChange={(e) => setLang(e.target.value)}
+                    onChange={(e)=> ClearAll(e)}
                     className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
-                    <option value="python3">Python</option>
-                    <option value="javascript">JavaScript</option>
-                    <option value="cpp">C++</option>
-                    <option value="java">Java</option>
-                    <option value="html">HTML</option>
+                    <option value="python3" onClick={()=>ClearAll()}>Python</option>
+                    <option value="javascript" onClick={()=>ClearAll()}>JavaScript</option>
+                    <option value="cpp" onClick={()=>ClearAll()}>C++</option>
+                    <option value="java" onClick={()=>ClearAll()}>Java</option>
+                    <option value="html" onClick={()=> ClearAll()}>HTML</option>
                 </select>
 
                 <p className="mt-2 text-gray-600">Tanlangan til: <strong>{lang}</strong></p>
@@ -89,7 +93,15 @@ export default function PistonCompiler() {
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ml-3"
                 disabled={loading}
             >
-                Tozalash
+                Natijani tozalash
+            </button>
+
+            <button
+                onClick={() => setCode('')}
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ml-3"
+                disabled={loading}
+            >
+                Codni tozalash
             </button>
 
 
