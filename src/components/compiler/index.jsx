@@ -79,6 +79,15 @@ export default function PistonCompiler() {
       >
         {loading ? "Ishlamoqda..." : "Run"}
       </button>
+      
+      <button
+        onClick={()=>setOutput('')}
+        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ml-3"
+        disabled={loading}
+      >
+        Tozalash
+      </button>
+
 
       {/* Output */}
       <div className="mt-4 p-4 bg-gray-100 rounded">
