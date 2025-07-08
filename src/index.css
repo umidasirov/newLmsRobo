@@ -1,0 +1,30 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+* {
+  font-family: "Inter", sans-serif;
+}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media (max-width: 768px) {
+  .bgnone {
+    background-color: transparent;
+  }
+}
+
+@media (max-width: 768px) {
+  .bgBlock {
+    background-color: #f1f2f7;
+    padding: 15px;
+    border-radius: 17px;
+  }
+}
+
+/* html, */
+body {
+  height: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
