@@ -46,13 +46,13 @@ export default function PistonCompiler() {
     };
 
     return (
-        <div className="p-6 mx-auto w-[100%]">
+        <div className="p-6 max-sm:p-2 mx-auto w-[100%]">
             <div className="mb-4 w-full items-center flex justify-between">
-                <div className="w-[250px]">
+                <div className="w-[150px] h-[40px]">
                     <select
                         value={lang}
                         onChange={(e) => ClearAll(e)}
-                        className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 h-[40px]"
                     >
                         <option value="python3">Python</option>
                         <option value="javascript">JavaScript</option>
@@ -63,7 +63,7 @@ export default function PistonCompiler() {
                 </div>
                 <button
                     onClick={runCode}
-                    className="mt-4 h-[50px] w-[100px] p-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    className="h-[40px] w-[100px] p-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                     disabled={loading}
                 >
                     {loading ? "Ishlamoqda..." : "Run"}
@@ -102,10 +102,10 @@ export default function PistonCompiler() {
                 </div>
             </div>
 
-            <div className="buttons flex items-center m-4 ml-0">
+            <div className="buttons gap-2 flex items-center m-4 ml-0 max-sm:flex-col max-sm:items-center max-sm:w-full">
                 <button
                     onClick={() => setOutput('')}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mr-3"
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mr-3 max-sm:w-[100%] max-sm:mr-0"
                     disabled={loading}
                 >
                     Natijani tozalash
@@ -113,7 +113,7 @@ export default function PistonCompiler() {
 
                 <button
                     onClick={() => setCode('')}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mr-3"
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mr-3 max-sm:w-[100%] max-sm:mr-0"
                     disabled={loading}
                 >
                     Codni tozalash

@@ -47,7 +47,7 @@ export default function FileUpload({ onFileChange }) {
 
   return (
     <div className="block">
-      <button className="px-4 bg-blue-600 text-white rounded hover:bg-blue-700 mr-3">
+      <button className="px-4 bg-blue-600 text-white rounded hover:bg-blue-700 mr-3 max-sm:w-[100%] max-sm:mr-0">
         <label
           htmlFor="file-upload"
           className="flex justify-center gap-2 px-4 py-2 cursor-pointer"
@@ -63,7 +63,7 @@ export default function FileUpload({ onFileChange }) {
           />
         </label>
       </button>
-        <p className="inline-block mt-2 text-sm text-gray-600 text-center">Fayl: <span className="text-blue-500">{fileName}</span></p>
+        <p className="inline-block mt-2 text-sm text-gray-600 text-center max-sm:w-[100%] max-sm:mr-0">Fayl: <span className="text-blue-500">{fileName}</span></p>
 
       {error && (
         <p className="mt-1 text-red-600 text-sm text-center font-medium">

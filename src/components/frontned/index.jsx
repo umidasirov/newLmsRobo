@@ -142,13 +142,13 @@ const FrontendCourse = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 pt-0 w-[100%]">
+    <div className="min-h-screen bg-gray-50 p-6 max-sm:p-2 pt-0 w-[100%]">
       <div className="mx-auto w-[100%]">
         <div className="text-center mb-8">
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6 w-[100%]">
-          <div className="w-full lg:w-2/6 bg-white p-4 rounded-lg shadow">
+          <div className="w-full lg:w-2/6 bg-white p-4 rounded-lg shadow max-sm:p-2">
             <h1 className="text-3xl font-bold text-gray-800">
               {findData?.title || "Frontend Dasturlash Kursi"}
             </h1>
@@ -213,7 +213,7 @@ const FrontendCourse = () => {
             {selectedSubLesson ? (
               <>
                 <Card title={selectedSubLesson.title} className="mb-6 shadow">
-                  <div className="aspect-w-16 aspect-h-9 mb-4 w-full h-[600px]">
+                  <div className="aspect-w-16 aspect-h-9 mb-4 w-full h-[600px] max-sm:h-[196px]">
                     {selectedSubLesson.video_url ? (
                       <ReactPlayer
                         url={selectedSubLesson.video_url}
@@ -227,15 +227,10 @@ const FrontendCourse = () => {
                       </div>
                     )}
                   </div>
-
+                    {/* Dars boyicha */}
                   <div className="prose max-w-none">
                     <p className="mb-4">{selectedSubLesson.description}</p>
-
-                    <div className="p-2 border border-gray-200 rounded">
-                      {/* compiler */}
-                      <PistonCompiler />
-                    </div>
-
+                    <br />
                     {selectedSubLesson.lesson_content?.length > 0 && (
                       <div className="mt-4">
                         <h3 className="font-bold text-lg mb-2">
@@ -254,6 +249,11 @@ const FrontendCourse = () => {
                         ))}
                       </div>
                     )}
+                    {/* compiler */}
+                    <div className="p-2 border border-gray-200 rounded">
+                      <PistonCompiler />
+                    </div>
+
                   </div>
                 </Card>
 
