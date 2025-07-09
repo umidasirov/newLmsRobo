@@ -231,11 +231,6 @@ const FrontendCourse = () => {
                   <div className="prose max-w-none">
                     <p className="mb-4">{selectedSubLesson.description}</p>
 
-                    <div className="p-2 border border-gray-200 rounded">
-                      {/* compiler */}
-                      <PistonCompiler />
-                    </div>
-
                     {selectedSubLesson.lesson_content?.length > 0 && (
                       <div className="mt-4">
                         <h3 className="font-bold text-lg mb-2">
@@ -252,6 +247,11 @@ const FrontendCourse = () => {
                             ))}
                           </div>
                         ))}
+                    <div className="p-2 border border-gray-200 rounded">
+                      {/* compiler */}
+                      <PistonCompiler />
+                    </div>
+
                       </div>
                     )}
                   </div>
