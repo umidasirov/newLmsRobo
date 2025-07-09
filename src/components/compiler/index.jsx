@@ -83,13 +83,13 @@ export default function PistonCompiler() {
                     />
                 </div>
 
-                <div className="p-4 bg-gray-100 rounded bg-[#1e1e1e] text-gray-100 rounded">
+                <div className="p-4 rounded bg-[#1e1e1e] text-gray-100 rounded">
                     {lang !== 'html' ? (
-                        <div className="bg-black text-green-400 p-3 h-[100px] overflow-y-auto border-t border-gray-700 font-mono text-sm">
+                        <div className="bg-black text-green-400 p-3 h-[100px] overflow-y-autofont-mono text-sm">
                             <pre className="whitespace-pre-wrap break-words">{output}</pre>
                         </div>
                     ) : (
-                        <div className="mt-4 text-gray-100">
+                        <div className="mt-4 text-green-100">
                             <h2 className="text-lg font-semibold mb-2">HTML Preview:</h2>
                             <iframe
                                 title="HTML Preview"
