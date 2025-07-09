@@ -9,9 +9,9 @@ function Layout() {
   const hideLayout = location.pathname === "/login";
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen w-[100%]">
       {!hideLayout && <Navbar />}
-      <main className="flex-1 w-[1920px]">
+      <main className="flex-1">
         <Outlet />
       </main>
       {!hideLayout && <Footer />}

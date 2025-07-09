@@ -251,7 +251,7 @@ const FrontendCourse = () => {
                       {/* compiler */}
                       <PistonCompiler />
                     </div>
-
+                        <PistonCompiler/>
                       </div>
                     )}
                   </div>
