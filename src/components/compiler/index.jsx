@@ -1,40 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import axios from "axios";
-import { div } from "framer-motion/client";
+import * as monaco from "monaco-editor";
+import FileUpload from "../fileUpload";
+import 'monaco-editor/esm/vs/basic-languages/python/python.contribution';
+import 'monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution';
+import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution';
+import 'monaco-editor/esm/vs/basic-languages/java/java.contribution';
+import 'monaco-editor/esm/vs/basic-languages/html/html.contribution';
 
 export default function PistonCompiler() {
     const [code, setCode] = useState("print('Salom, dunyo!')");
     const [output, setOutput] = useState("");
     const [loading, setLoading] = useState(false);
     const [lang, setLang] = useState("python3");
-    console.log("sal");
 
     const langMap = {
-        python3: "python3",
+        python3: "python",
         javascript: "javascript",
         cpp: "cpp",
         java: "java",
         html: "html"
     };
-    function ClearAll(e){
-        setCode('')
-        setOutput('')
-        setLang(e.target.value)
+
+    function ClearAll(e) {
+        setCode('');
+        setOutput('');
+        setLang(e.target.value);
     }
+
     const runCode = async () => {
         setLoading(true);
         try {
             const response = await axios.post("https://emkc.org/api/v2/piston/execute", {
                 language: lang,
-                version: "*", // avtomatik eng so‘nggi versiya
-                files: [
-                    {
-                        content: code,
-                    },
-                ],
+                version: "*",
+                files: [{ content: code }],
             });
-
             setOutput(response.data.run.output || "No output");
         } catch (error) {
             setOutput("Xatolik: " + error.message);
@@ -44,88 +46,80 @@ export default function PistonCompiler() {
     };
 
     return (
-        <div className="p-6 max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Universal Online Compiler (Piston API)</h1>
-
-            {/* Dropdown */}
-            <div className="mb-4 w-[250px]" >
-                <label className="block mb-2 text-sm font-medium text-gray-700">
-                    Tilni tanlang
-                </label>
-                <select
-                    value={lang}
-                    onChange={(e)=> ClearAll(e)}
-                    className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        <div className="p-6 mx-auto w-[100%]">
+            <div className="mb-4 w-full items-center flex justify-between">
+                <div className="w-[250px]">
+                    <select
+                        value={lang}
+                        onChange={(e) => ClearAll(e)}
+                        className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
+                        <option value="python3">Python</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="cpp">C++</option>
+                        <option value="java">Java</option>
+                        <option value="html">HTML</option>
+                    </select>
+                </div>
+                <button
+                    onClick={runCode}
+                    className="mt-4 h-[50px] w-[100px] p-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    disabled={loading}
                 >
-                    <option value="python3" onClick={()=>ClearAll()}>Python</option>
-                    <option value="javascript" onClick={()=>ClearAll()}>JavaScript</option>
-                    <option value="cpp" onClick={()=>ClearAll()}>C++</option>
-                    <option value="java" onClick={()=>ClearAll()}>Java</option>
-                    <option value="html" onClick={()=> ClearAll()}>HTML</option>
-                </select>
-
-                <p className="mt-2 text-gray-600">Tanlangan til: <strong>{lang}</strong></p>
+                    {loading ? "Ishlamoqda..." : "Run"}
+                </button>
             </div>
 
+            <div className="bg-[#1e1e1e] py-2">
+                <h1 className="mt-2 text-gray-100 pl-[3%] my-[5px]"><strong>{lang}</strong></h1>
 
-            {/* Editor */}
-            <div className="rounded">
-                <Editor
-                    height="300px"
-                    defaultLanguage={langMap[lang]}
-                    value={code}
-                    onChange={(value) => setCode(value)}
-                    theme="vs-dark"
-                />
-            </div>
+                <div className="rounded h-full">
+                    <Editor
+                        height="400px"
+                        language={langMap[lang]}
+                        value={code}
+                        onChange={(value) => setCode(value)}
+                        theme="vs-dark"
+                    />
+                </div>
 
-            {/* Run Button */}
-            <button
-                onClick={runCode}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                disabled={loading}
-            >
-                {loading ? "Ishlamoqda..." : "Run"}
-            </button>
-
-            <button
-                onClick={() => setOutput('')}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ml-3"
-                disabled={loading}
-            >
-                Natijani tozalash
-            </button>
-
-            <button
-                onClick={() => setCode('')}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ml-3"
-                disabled={loading}
-            >
-                Codni tozalash
-            </button>
-
-
-            {/* Output */}
-            <div className="mt-4 p-4 bg-gray-100 rounded">
-                {lang!='html'?
-                    (
-                        <div>
-                            <h2 className="text-lg font-semibold">Output:</h2>
-                            <pre className="whitespace-pre-wrap">{output}</pre>
+                <div className="p-4 bg-gray-100 rounded bg-[#1e1e1e] text-gray-100 rounded">
+                    {lang !== 'html' ? (
+                        <div className="bg-black text-green-400 p-3 h-[100px] overflow-y-auto border-t border-gray-700 font-mono text-sm">
+                            <pre className="whitespace-pre-wrap break-words">{output}</pre>
                         </div>
-                    ):(
-                        <div className="mt-4">
+                    ) : (
+                        <div className="mt-4 text-gray-100">
                             <h2 className="text-lg font-semibold mb-2">HTML Preview:</h2>
                             <iframe
                                 title="HTML Preview"
                                 srcDoc={code}
-                                sandbox=""
-                                className="w-full h-96 border rounded"
+                                sandbox="allow-scripts allow-same-origin"
+                                className="w-full h-96 border rounded bg-white"
                             />
                         </div>
-                    )
+                    )}
+                </div>
+            </div>
 
-                }
+            <div className="buttons flex items-center m-4 ml-0">
+                <button
+                    onClick={() => setOutput('')}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mr-3"
+                    disabled={loading}
+                >
+                    Natijani tozalash
+                </button>
+
+                <button
+                    onClick={() => setCode('')}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mr-3"
+                    disabled={loading}
+                >
+                    Codni tozalash
+                </button>
+
+                <FileUpload />
             </div>
         </div>
     );

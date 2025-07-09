@@ -134,7 +134,7 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="mt-8 pt-4 border-t border-gray-200 text-center text-gray-500 text-sm">
-          © {new Date().getFullYear()} Eduma. Barcha huquqlar himoyalangan.
+          © {new Date().getFullYear()} MYrobo. Barcha huquqlar himoyalangan.
         </div>
       </div>
     </footer>

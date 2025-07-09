@@ -142,21 +142,21 @@ const FrontendCourse = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gray-50 p-6 pt-0 w-[100%]">
+      <div className="mx-auto w-[100%]">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">
-            {findData?.title || "Frontend Dasturlash Kursi"}
-          </h1>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          <div className="w-full lg:w-1/4 bg-white p-4 rounded-lg shadow">
+        <div className="flex flex-col lg:flex-row gap-6 w-[100%]">
+          <div className="w-full lg:w-2/6 bg-white p-4 rounded-lg shadow">
+            <h1 className="text-3xl font-bold text-gray-800">
+              {findData?.title || "Frontend Dasturlash Kursi"}
+            </h1>
             <div className="space-y-2">
               {findData?.lesson_bigs?.map((section) => (
-                <div key={section.id}>
+                <div key={section.id} className="border-b">
                   <div
-                    className={`flex items-center p-2 hover:bg-blue-50 rounded cursor-pointer ${selectedSection?.id === section.id
+                    className={`flex border-b border-r items-center p-2 hover:bg-blue-50 rounded cursor-pointer ${selectedSection?.id === section.id
                       ? "bg-blue-100 font-medium"
                       : ""
                       }`}
@@ -209,16 +209,16 @@ const FrontendCourse = () => {
             </div>
           </div>
 
-          <div className="w-full lg:w-3/4">
+          <div className="w-full lg:w-5/6">
             {selectedSubLesson ? (
               <>
                 <Card title={selectedSubLesson.title} className="mb-6 shadow">
-                  <div className="aspect-w-16 aspect-h-9 mb-4">
+                  <div className="aspect-w-16 aspect-h-9 mb-4 w-full h-[600px]">
                     {selectedSubLesson.video_url ? (
                       <ReactPlayer
                         url={selectedSubLesson.video_url}
                         width="100%"
-                        height="400px"
+                        height="100%"
                         controls
                       />
                     ) : (
@@ -229,11 +229,11 @@ const FrontendCourse = () => {
                   </div>
 
                   <div className="prose max-w-none">
-                    <p>{selectedSubLesson.description}</p>
+                    <p className="mb-4">{selectedSubLesson.description}</p>
 
                     <div className="p-2 border border-gray-200 rounded">
                       {/* compiler */}
-                      <PistonCompiler/>
+                      <PistonCompiler />
                     </div>
 
                     {selectedSubLesson.lesson_content?.length > 0 && (
