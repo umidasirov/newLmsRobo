@@ -10,6 +10,7 @@ import { useData } from "../../datacontect";
 import { useLocation } from "react-router-dom";
 import Editor from "@monaco-editor/react";
 import PistonCompiler from "../compiler";
+import CodeSubmitter from "../compiler";
 const FrontendCourse = () => {
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
@@ -251,7 +252,7 @@ const FrontendCourse = () => {
                     )}
                     {/* compiler */}
                     <div className="p-2 border border-gray-200 rounded">
-                      <PistonCompiler />
+                      <CodeSubmitter id={id}/>
                     </div>
 
                   </div>

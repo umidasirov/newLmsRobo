@@ -1,126 +1,153 @@
-import { useState, useEffect } from "react";
-import Editor from "@monaco-editor/react";
+import { useState } from "react";
 import axios from "axios";
-import * as monaco from "monaco-editor";
-import FileUpload from "../fileUpload";
-import 'monaco-editor/esm/vs/basic-languages/python/python.contribution';
-import 'monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution';
-import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution';
-import 'monaco-editor/esm/vs/basic-languages/java/java.contribution';
-import 'monaco-editor/esm/vs/basic-languages/html/html.contribution';
+import { UploadOutlined } from "@ant-design/icons";
+import Editor from "@monaco-editor/react";
 
-export default function PistonCompiler() {
+export default function CodeSubmitter({ id }) {
     const [code, setCode] = useState("print('Salom, dunyo!')");
+    const [language, setLanguage] = useState("python3");
+    const [file, setFile] = useState(null);
+    const [lessonId, setLessonId] = useState(id);
     const [output, setOutput] = useState("");
+    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    const [lang, setLang] = useState("python3");
+    const [parsedOutput,setParsedOutput] = useState({})
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    const ALLOWED_TYPES = [
+        "text/x-python", "text/javascript", "text/html", "text/css", "application/json",
+        "text/markdown", "text/x-c++src", "text/x-csrc", "application/x-typescript", "text/plain"
+    ];
 
-    const langMap = {
-        python3: "python",
-        javascript: "javascript",
-        cpp: "cpp",
-        java: "java",
-        html: "html"
+
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        if (!selectedFile) return;
+
+        if (!ALLOWED_TYPES.includes(selectedFile.type)) {
+            setError("Faqat dasturlashga oid fayllar yuklanadi (.py, .js, .html, va h.k.)");
+            return;
+        }
+
+        if (selectedFile.size > MAX_FILE_SIZE) {
+            setError("Fayl hajmi 5MB dan oshmasligi kerak.");
+            return;
+        }
+
+        setError("");
+        setFile(selectedFile);
     };
 
-    function ClearAll(e) {
-        setCode('');
-        setOutput('');
-        setLang(e.target.value);
-    }
-
-    const runCode = async () => {
+    const handleSubmit = async () => {
         setLoading(true);
+        setOutput("");
         try {
-            const response = await axios.post("https://emkc.org/api/v2/piston/execute", {
-                language: lang,
-                version: "*",
-                files: [{ content: code }],
+            const formData = new FormData();
+            if (file) formData.append("file", file);
+            formData.append("lesson_id", lessonId);
+            formData.append("user_code", code);
+            formData.append("language", language);
+
+            const token = localStorage.getItem("token"); // tokenni olish
+
+            const response = await axios.post("https://api.myrobo.uz/api/handle-code-lesson/", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    "Authorization": `Bearer ${token}`
+                }
             });
-            setOutput(response.data.run.output || "No output");
-        } catch (error) {
-            setOutput("Xatolik: " + error.message);
+
+            setOutput(response.data);
+            // setParsedOutput(JSON.parse(output)
+        } catch (err) {
+            setOutput("Xatolik: " + (err.response?.data?.detail || err.message));
         } finally {
             setLoading(false);
         }
     };
 
+    console.log(output);
+    
     return (
-        <div className="p-6 max-sm:p-2 mx-auto w-[100%]">
-            <div className="mb-4 w-full items-center flex justify-between">
-                <div className="w-[150px] h-[40px]">
-                    <select
-                        value={lang}
-                        onChange={(e) => ClearAll(e)}
-                        className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 h-[40px]"
-                    >
-                        <option value="python3">Python</option>
-                        <option value="javascript">JavaScript</option>
-                        <option value="cpp">C++</option>
-                        <option value="java">Java</option>
-                        <option value="html">HTML</option>
-                    </select>
-                </div>
-                <button
-                    onClick={runCode}
-                    className="h-[40px] w-[100px] p-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    disabled={loading}
+        <div className="p-6">
+            {/* Tanlash paneli */}
+            <div className="flex flex-wrap items-center gap-4 mb-4">
+                <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    className="p-2 border rounded"
                 >
-                    {loading ? "Ishlamoqda..." : "Run"}
-                </button>
-            </div>
+                    <option value="python3">Python</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="cpp">C++</option>
+                    <option value="java">Java</option>
+                    <option value="html">HTML</option>
+                </select>
 
-            <div className="bg-[#1e1e1e] py-2">
-                <h1 className="mt-2 text-gray-100 pl-[3%] my-[5px]"><strong>{lang}</strong></h1>
+                <input
+                    type="text"
+                    value={lessonId}
+                    onChange={(e) => setLessonId(e.target.value)}
+                    className="p-2 border rounded"
+                    placeholder="Dars ID (lesson_id)"
+                />
 
-                <div className="rounded h-full">
-                    <Editor
-                        height="400px"
-                        language={langMap[lang]}
-                        value={code}
-                        onChange={(value) => setCode(value)}
-                        theme="vs-dark"
+                <label className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded cursor-pointer">
+                    <UploadOutlined />
+                    <span>Faylni tanlang</span>
+                    <input
+                        type="file"
+                        accept=".py,.js,.html,.css,.json,.ts,.cpp,.c,.md,.txt"
+                        onChange={handleFileChange}
+                        className="hidden"
                     />
-                </div>
+                </label>
+            </div>
 
-                <div className="p-4 rounded bg-[#1e1e1e] text-gray-100 rounded">
-                    {lang !== 'html' ? (
-                        <div className="bg-black text-green-400 p-3 h-[100px] overflow-y-autofont-mono text-sm">
-                            <pre className="whitespace-pre-wrap break-words">{output}</pre>
-                        </div>
-                    ) : (
-                        <div className="mt-4 text-green-100">
-                            <h2 className="text-lg font-semibold mb-2">HTML Preview:</h2>
-                            <iframe
-                                title="HTML Preview"
-                                srcDoc={code}
-                                sandbox="allow-scripts allow-same-origin"
-                                className="w-full h-96 border rounded bg-white"
-                            />
-                        </div>
-                    )}
+            {file && <p className="text-blue-500">Fayl tanlandi: {file.name}</p>}
+            {error && <p className="text-red-600">{error}</p>}
+
+            {/* VS Code style Editor */}
+            <div className="py-6 border rounded-s overflow-hidden mb-4 bg-[#1e1e1e]">
+                <Editor
+                    height="400px"
+                    language={language === "python3" ? "python" : language}
+                    value={code}
+                    onChange={(val) => setCode(val)}
+                    theme="vs-dark"
+                    options={{
+                        fontSize: 14,
+                        lineNumbers: "on",
+                        minimap: { enabled: false }
+                    }}
+                />
+                {/* Natija */}
+                <div className="p-4 bg-[#1e1e1e] text-green-400 font-mono text-sm border-t min-h-[100px] whitespace-pre-wrap break-words">
+                    {output.output}
                 </div>
             </div>
 
-            <div className="buttons gap-2 flex items-center m-4 ml-0 max-sm:flex-col max-sm:items-center max-sm:w-full">
+            {/* Tugmalar */}
+            <div className="flex gap-3 mb-4">
                 <button
-                    onClick={() => setOutput('')}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mr-3 max-sm:w-[100%] max-sm:mr-0"
+                    onClick={handleSubmit}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                     disabled={loading}
                 >
-                    Natijani tozalash
+                    {loading ? "Yuborilmoqda..." : "Yuborish"}
                 </button>
 
                 <button
-                    onClick={() => setCode('')}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mr-3 max-sm:w-[100%] max-sm:mr-0"
-                    disabled={loading}
+                    onClick={() => {
+                        setCode("");
+                        setOutput("");
+                        setFile(null);
+                    }}
+                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                 >
-                    Codni tozalash
+                    Tozalash
                 </button>
-
-                <FileUpload />
             </div>
+
         </div>
     );
 }

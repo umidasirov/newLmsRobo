@@ -49,7 +49,7 @@ function KirishComponentsID() {
           notify({ type: "buyCourses" });
         } else {
           notify({ type: "success" });
-          navigate("/my-courses");
+          navigate("/course-detail", { state: { id: findData.id } });
         }
       })
       .catch((error) => console.log(error));

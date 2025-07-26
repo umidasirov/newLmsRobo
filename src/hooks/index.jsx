@@ -93,7 +93,7 @@ export const useAxios = () => {
       };
 
       if (auth && token) {
-        defaultHeaders.Authorization = `token ${token}`;
+        defaultHeaders.Authorization = `Bearer ${token}`;
       }
 
       const res = await axios({
@@ -103,9 +103,9 @@ export const useAxios = () => {
         headers: defaultHeaders,
         params,
       });
-
       return res.data;
     } catch (error) {
+      console.log(token, " bu sizning tokeniz");
       console.error("Axios xatolik:", error);
       throw error;
     }
