@@ -122,7 +122,7 @@ export default function CodeSubmitter({ id }) {
                 />
                 {/* Natija */}
                 <div className="p-4 bg-[#1e1e1e] text-green-400 font-mono text-sm border-t min-h-[100px] whitespace-pre-wrap break-words">
-                    {output.output}
+                    {output}
                 </div>
             </div>
 
