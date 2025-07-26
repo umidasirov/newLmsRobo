@@ -11,7 +11,6 @@ export default function CodeSubmitter({ id }) {
     const [output, setOutput] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    const [parsedOutput,setParsedOutput] = useState({})
     const MAX_FILE_SIZE = 5 * 1024 * 1024;
     const ALLOWED_TYPES = [
         "text/x-python", "text/javascript", "text/html", "text/css", "application/json",
@@ -56,8 +55,7 @@ export default function CodeSubmitter({ id }) {
                 }
             });
 
-            setOutput(response.data);
-            // setParsedOutput(JSON.parse(output)
+            setOutput(response.data.output);
         } catch (err) {
             setOutput("Xatolik: " + (err.response?.data?.detail || err.message));
         } finally {
