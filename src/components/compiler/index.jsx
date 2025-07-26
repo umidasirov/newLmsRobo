@@ -68,9 +68,9 @@ export default function CodeSubmitter({ id }) {
     console.log(output);
     
     return (
-        <div className="p-6">
+        <div className="p-6 max-md:p-1">
             {/* Tanlash paneli */}
-            <div className="flex flex-wrap items-center gap-4 mb-4">
+            <div className="flex items-center justify-between gap-4 mb-4">
                 <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
@@ -83,13 +83,13 @@ export default function CodeSubmitter({ id }) {
                     <option value="html">HTML</option>
                 </select>
 
-                <input
+                {/* <input
                     type="text"
                     value={lessonId}
                     onChange={(e) => setLessonId(e.target.value)}
                     className="p-2 border rounded"
                     placeholder="Dars ID (lesson_id)"
-                />
+                /> */}
 
                 <label className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded cursor-pointer">
                     <UploadOutlined />
@@ -107,7 +107,7 @@ export default function CodeSubmitter({ id }) {
             {error && <p className="text-red-600">{error}</p>}
 
             {/* VS Code style Editor */}
-            <div className="py-6 border rounded-s overflow-hidden mb-4 bg-[#1e1e1e]">
+            <div className="py-6 max-md:p-1 border rounded-s overflow-hidden mb-4 bg-[#1e1e1e]">
                 <Editor
                     height="400px"
                     language={language === "python3" ? "python" : language}
