@@ -14,6 +14,7 @@ import MeningKurslarim from "../components/my-courses";
 import Sertificatlarim from "../components/sertificatlarim";
 import NotFound from "../components/not-found";
 import PistonCompiler from "../components/compiler";
+import RegistrationForm from "../components/reception";
 
 const root = createBrowserRouter([
   {
@@ -72,6 +73,10 @@ const root = createBrowserRouter([
       {
         path:"compilyator",
         element:<PistonCompiler/>
+      },
+      {
+        path:"/registrate",
+        element:<RegistrationForm/>
       }
     ],
   },
