@@ -20,6 +20,10 @@ const notificationApi = () => {
         return notification.success({
           message: "Tizimga kirdingiz",
         });
+      case "loginError":
+        return notification.error({
+          message: "Ko'd xato bolishi mumkin",
+        });
       default:
         return notification.info({
           message: "Noma’lum holat yuz berdi!",

@@ -43,6 +43,8 @@ const Profilim = () => {
   console.log();
   
   console.log(courseData);
+  console.log(localStorage.getItem("token"));
+  
 
   return (
     <div className="m-center flex overflow-hidden px-8 text-gray-80 w-full h-full h-[100rem] w-[80%] max-sm:flex-col">

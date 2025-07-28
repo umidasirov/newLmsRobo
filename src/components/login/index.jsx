@@ -89,7 +89,11 @@ const LoginPage = () => {
         localStorage.setItem("phone", data?.phone);
         navigate("/profilim");
       })
-      .catch((error) => console.log(error));
+      .catch((error) =>{
+         notify({ type: "loginError"});
+        console.log(error)
+      } 
+    );
   };
 
   return (
@@ -147,28 +151,6 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-8 flex flex-col items-center justify-center text-center rounded-t-3xl md:rounded-l-none md:rounded-r-3xl">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-white mb-4">
-              MyRoboga Kirish
-            </h1>
-            <p className="text-blue-100 mb-6">
-              Tasdiqlash kodini olish uchun kiring:
-            </p>
-            <a
-              href={telegramLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block bg-white text-blue-600 font-medium py-3 px-6 rounded-lg hover:bg-blue-50 transition duration-200"
-            >
-              @robologinbot
-            </a>
-          </div>
-
-          <div className="mt-6 text-blue-200 text-sm">
-            <p>Agar sizda akkaunt bo'lmasa, bot orqali ro'yxatdan o'ting</p>
-          </div>
-        </div> */}
       </div>
     </div>
   );
@@ -200,6 +182,28 @@ export default LoginPage;
 
 
 
+{/* <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-8 flex flex-col items-center justify-center text-center rounded-t-3xl md:rounded-l-none md:rounded-r-3xl">
+  <div className="mb-8">
+    <h1 className="text-2xl font-bold text-white mb-4">
+      MyRoboga Kirish
+    </h1>
+    <p className="text-blue-100 mb-6">
+      Tasdiqlash kodini olish uchun kiring:
+    </p>
+    <a
+      href={telegramLink}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-block bg-white text-blue-600 font-medium py-3 px-6 rounded-lg hover:bg-blue-50 transition duration-200"
+    >
+      @robologinbot
+    </a>
+  </div>
+
+  <div className="mt-6 text-blue-200 text-sm">
+    <p>Agar sizda akkaunt bo'lmasa, bot orqali ro'yxatdan o'ting</p>
+  </div>
+</div> */}
 
 
 
