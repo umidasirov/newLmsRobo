@@ -268,7 +268,7 @@ function Navbar() {
 
       <Menu.Divider />
 
-      <Menu.Item key="3" icon={<LogoutOutlined />} onClick={handleLogout}>
+      <Menu.Item key="4" icon={<LogoutOutlined />} onClick={handleLogout}>
         Chiqish
       </Menu.Item>
     </Menu>
@@ -463,6 +463,19 @@ function Navbar() {
                   <BookOutlined className="mr-2" />
                   Kurslarim
                 </Link>
+                
+                <Link
+                  to="/registrate"
+                  onClick={onClose}
+                  className={`flex items-center p-3 text-[15px] font-medium ${isActive("/registrate")
+                    ? "text-blue-500 bg-blue-50"
+                    : "text-gray-600"
+                    } hover:text-blue-500 hover:bg-blue-50 transition-colors rounded`}
+                >
+                  <EditOutlined className="mr-2" />
+                  Profilni sozlash
+                </Link>
+                
 
                 <button
                   onClick={() => {

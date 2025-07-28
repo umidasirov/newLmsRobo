@@ -80,7 +80,7 @@ const LoginPage = () => {
       },
     })
       .then((data) => {
-        console.log(data);
+        console.log("User ku bu", data);
         if (data?.status === "success") {
           notify({ type: "loginSuccses" });
         }
@@ -90,8 +90,8 @@ const LoginPage = () => {
         navigate("/profilim");
       })
       .catch((error) =>{
-         notify({ type: "loginError"});
         console.log(error)
+         notify({ type: "loginError"});
       } 
     );
   };

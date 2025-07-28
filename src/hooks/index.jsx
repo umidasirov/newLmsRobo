@@ -105,7 +105,6 @@ export const useAxios = () => {
       });
       return res.data;
     } catch (error) {
-      console.log(token, " bu sizning tokeniz");
       console.error("Axios xatolik:", error);
       throw error;
     }

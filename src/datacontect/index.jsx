@@ -40,7 +40,6 @@ export const DataProvider = ({ children }) => {
         },
       ]
     }
-    console.log(user);
     
   
   return (

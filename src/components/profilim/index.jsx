@@ -17,7 +17,6 @@ const Profilim = () => {
 
   const telefon = user.phone || localStorage.getItem("phone");
   const balans = localStorage.getItem("balance");
-  console.log(user);
   const url = "https://api.myrobo.uz";
   const axios = useAxios();
   useEffect(() => {
@@ -40,10 +39,6 @@ const Profilim = () => {
   const postID = (slug) => {
     navigate(`/team2/`, { state: { name: slug } });
   };
-  console.log();
-  
-  console.log(courseData);
-  console.log(localStorage.getItem("token"));
   
 
   return (
@@ -64,39 +59,40 @@ const Profilim = () => {
         <h1 className="start text-[50px] border-b border-grey-200 mb-5 pb-4">Boshlash</h1>
 
         <h1 className="start text-[30px] mb-5 pb-4">Mening kurslarim</h1>
-
-        {user.bought.map((e) => (
-          <Link
-            to="/team2"
-            state={{ name: e.slug }}
-            key={e.slug}
-            className="block w-[300px]"
-          >
-            <div className="bg-white shadow-md hover:shadow-xl transition-shadow duration-300 rounded-2xl overflow-hidden border border-gray-200 p-4 mb-6">
-              <img
-                src={url + e.img}
-                alt={e.username}
-                className="w-full h-48 object-cover rounded-xl mb-4"
-              />
-              <div className="text-gray-800 text-xl font-semibold mb-1">{e.username}</div>
-              <div className="text-gray-600 mb-2">
-                <div className="text-sm">{e.job}</div>
-                <div className="text-sm">
-                  Tajriba: <span className="font-medium text-gray-800">+{e.experience} yil</span>
+        <div className="flex items-center gap-6 max-md:flex-col">
+          {user.bought.map((e) => (
+            <Link
+              to="/team2"
+              state={{ name: e.slug }}
+              key={e.slug}
+              className="block w-[300px]"
+            >
+              <div className="bg-white shadow-md hover:shadow-xl transition-shadow duration-300 rounded-2xl overflow-hidden border border-gray-200 p-4 mb-6">
+                <img
+                  src={url + e.img}
+                  alt={e.username}
+                  className="w-full h-48 object-cover rounded-xl mb-4"
+                />
+                <div className="text-gray-800 text-xl font-semibold mb-1">{e.username}</div>
+                <div className="text-gray-600 mb-2">
+                  <div className="text-sm">{e.job}</div>
+                  <div className="text-sm">
+                    Tajriba: <span className="font-medium text-gray-800">+{e.experience} yil</span>
+                  </div>
+                </div>
+                <div className="text-gray-700 text-sm italic mb-3">{e.about}</div>
+                <div className="text-gray-500 text-sm">
+                  Ish joyi: <span className="font-semibold text-gray-700">{e.work_place}</span>
+                </div>
+                <div className="text-center p-1">
+                  <div className="center border border-gray-500 rounded p-1 text-gray-500">
+                    To‘liq...
+                  </div>
                 </div>
               </div>
-              <div className="text-gray-700 text-sm italic mb-3">{e.about}</div>
-              <div className="text-gray-500 text-sm">
-                Ish joyi: <span className="font-semibold text-gray-700">{e.work_place}</span>
-              </div>
-              <div className="text-center p-1">
-                <div className="center border border-gray-500 rounded p-1 text-gray-500">
-                  To‘liq...
-                </div>
-              </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))}
+        </div>
 
         <h1 className="start text-[30px] mb-5 pb-4">Mashxur kurslar</h1>
 
