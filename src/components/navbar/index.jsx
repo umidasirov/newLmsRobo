@@ -200,6 +200,7 @@ import {
   LogoutOutlined,
   StarOutlined,
   DollarCircleOutlined,
+  EditOutlined
 } from "@ant-design/icons"
 const balans = localStorage.getItem("balance");
 function Navbar() {
@@ -238,6 +239,14 @@ function Navbar() {
         onClick={() => navigate("/profilim")}
       >
         Profilim
+      </Menu.Item>
+
+      <Menu.Item
+        key="3"
+        icon={<EditOutlined />}
+        onClick={() => navigate("/registrate")}
+      >
+        Profilni sozlash
       </Menu.Item>
 
       <Menu.Divider />

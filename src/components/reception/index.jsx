@@ -1,9 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const generateMathQuestion = () => {
+  const a = Math.floor(Math.random() * 9) + 1;
+  const b = Math.floor(Math.random() * 9) + 1;
+  return {
+    question: `${a} x ${b}`,
+    answer: (a * b).toString()
+  };
+};
+
 const RegistrationForm = () => {
-  const [step, setStep] = useState(1); // Изменил начальное значение на 1
-  const navigate = useNavigate(); // Исправил на useNavigate
+  const [step, setStep] = useState(1);
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -12,7 +22,14 @@ const RegistrationForm = () => {
     verificationCode: '',
     mathAnswer: ''
   });
+
+  const [math, setMath] = useState({ question: '', answer: '' });
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    const { question, answer } = generateMathQuestion();
+    setMath({ question, answer });
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,7 +45,7 @@ const RegistrationForm = () => {
     if (!formData.lastName.trim()) newErrors.lastName = 'Familiya kiritilmadi';
     if (!formData.phone.trim()) newErrors.phone = 'Telefon raqami kiritilmadi';
     if (!formData.password) newErrors.password = 'Parol kiritilmadi';
-    if (formData.mathAnswer !== '9') newErrors.mathAnswer = 'Noto\'g\'ri javob';
+    if (formData.mathAnswer.trim() !== math.answer) newErrors.mathAnswer = 'Noto\'g\'ri javob';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -38,28 +55,29 @@ const RegistrationForm = () => {
     e.preventDefault();
     if (validateStep1()) {
       setStep(2);
-      // Здесь можно отправить запрос для получения кода подтверждения
+      // Bu yerda kod yuborish logikasi bo'lishi mumkin
     }
   };
 
   const handleSubmitStep2 = (e) => {
     e.preventDefault();
-    if (!formData.verificationCode) {
+    if (!formData.verificationCode.trim()) {
       setErrors({ verificationCode: 'Tasdiqlash kodi kiritilmadi' });
       return;
     }
-    // Здесь можно отправить запрос для завершения регистрации
-    alert('Muvaffaqiyatli ro\'yxatdan o\'tdingiz!');
-    navigate('/login'); // Перенаправление после успешной регистрации
+
+    alert("Muvaffaqiyatli ro'yxatdan o'tdingiz!");
+    navigate('/login');
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      {step === 1 ? (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 p-1">
+      <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-md">
         <>
-          <h1 className="text-2xl font-bold text-center mb-6">Ro'yxatdan o'tish</h1>
-          
+          <h1 className="text-2xl font-bold text-center mb-6">Malumotlarni To‘ldirish</h1>
+
           <form onSubmit={handleSubmitStep1}>
+            {/* Ism */}
             <div className="mb-4">
               <label className="block text-gray-700 mb-2" htmlFor="firstName">Ism</label>
               <input
@@ -73,6 +91,7 @@ const RegistrationForm = () => {
               {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
             </div>
 
+            {/* Familiya */}
             <div className="mb-4">
               <label className="block text-gray-700 mb-2" htmlFor="lastName">Familiya</label>
               <input
@@ -86,6 +105,7 @@ const RegistrationForm = () => {
               {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
             </div>
 
+            {/* Telefon */}
             <div className="mb-4">
               <label className="block text-gray-700 mb-2" htmlFor="phone">Telefon raqami</label>
               <div className="flex">
@@ -98,13 +118,14 @@ const RegistrationForm = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="9x600007"
+                  placeholder="9x1234567"
                   className={`flex-1 px-3 py-2 border rounded-r-md ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
                 />
               </div>
               {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
             </div>
 
+            {/* Parol */}
             <div className="mb-4">
               <label className="block text-gray-700 mb-2" htmlFor="password">Parol</label>
               <input
@@ -118,8 +139,9 @@ const RegistrationForm = () => {
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
             </div>
 
+            {/* Matematik savol */}
             <div className="mb-6">
-              <label className="block text-gray-700 mb-2">9 x 1 = ?</label>
+              <label className="block text-gray-700 mb-2">{math.question} = ?</label>
               <input
                 type="text"
                 name="mathAnswer"
@@ -130,62 +152,32 @@ const RegistrationForm = () => {
               {errors.mathAnswer && <p className="text-red-500 text-sm mt-1">{errors.mathAnswer}</p>}
             </div>
 
+            {/* Submit */}
             <button
               type="submit"
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200"
             >
-              Ro'yxatdan o'tish
+              Saqlash
             </button>
           </form>
 
+          {/* Login link */}
           <div className="mt-6 text-center">
-            <p className="text-gray-600">Agar akkauntingiz bo'lsa, 
-              <button onClick={() => navigate('/login')} className="text-blue-600 ml-1">
-                Kirish
-              </button>
+            <p className="text-gray-600">Agar akkauntingiz bo‘lsa,
+              <button onClick={() => navigate('/login')} className="text-blue-600 ml-1">Kirish</button>
             </p>
           </div>
         </>
-      ) : (
-        <>
-          <h1 className="text-2xl font-bold text-center mb-6">Tasdiqlash</h1>
-          
-          <form onSubmit={handleSubmitStep2}>
-            <div className="mb-6">
-              <label className="block text-gray-700 mb-2" htmlFor="verificationCode">Tasdiqlash kodingizni kiriting</label>
-              <input
-                type="text"
-                id="verificationCode"
-                name="verificationCode"
-                value={formData.verificationCode}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md ${errors.verificationCode ? 'border-red-500' : 'border-gray-300'}`}
-              />
-              {errors.verificationCode && <p className="text-red-500 text-sm mt-1">{errors.verificationCode}</p>}
-            </div>
 
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200"
-            >
-              Tasdiqlash
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">Kodni olmadingizmi? 
-              <button className="text-blue-600 ml-1">Qayta yuborish</button>
-            </p>
-          </div>
-        </>
-      )}
-
-      <div className="mt-8 pt-4 border-t border-gray-200">
-        <p className="text-gray-600 text-center">Yordam kerakmi? 
-          <span className="font-semibold"> Call center: +998123456789</span>
-        </p>
+        {/* Call center */}
+        <div className="mt-8 pt-4 border-t border-gray-200">
+          <p className="text-gray-600 text-center">Yordam kerakmi?
+            <span className="font-semibold"> Call center: +998123456789</span>
+          </p>
+        </div>
       </div>
     </div>
+
   );
 };
 
