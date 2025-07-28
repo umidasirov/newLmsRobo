@@ -213,6 +213,7 @@ import notificationApi from "../../generic/notificition";
 const RegistrationForm = () => {
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
+  const [mathQuestion, setMathQuestion] = useState({ num1: 0, num2: 0, answer: 0 });
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -248,13 +249,27 @@ const RegistrationForm = () => {
     }));
   };
 
+  useEffect(() => {
+    generateMathQuestion();
+  }, []);
+
+  const generateMathQuestion = () => {
+    const num1 = Math.floor(Math.random() * 10) + 1; // 1 dan 10 gacha
+    const num2 = Math.floor(Math.random() * 10) + 1;
+    setMathQuestion({
+      num1,
+      num2,
+      answer: num1 * num2, // ko‘paytirish, istasangiz qo‘shish ham bo‘lishi mumkin
+    });
+  };
+
   const validateStep1 = () => {
     const newErrors = {};
     if (!formData.firstName.trim()) newErrors.firstName = "Ism kiritilmadi";
     if (!formData.lastName.trim()) newErrors.lastName = "Familiya kiritilmadi";
     if (!formData.phone.trim()) newErrors.phone = "Telefon raqami kiritilmadi";
     if (!formData.password) newErrors.password = "Parol kiritilmadi";
-    if (formData.mathAnswer !== "9") newErrors.mathAnswer = "Noto'g'ri javob";
+    if (parseInt(formData.mathAnswer) !== mathQuestion.answer) { newErrors.mathAnswer = "Noto'g'ri javob"; }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -286,7 +301,7 @@ const RegistrationForm = () => {
     //   console.error(err);
     //   notify({ type: "error", text: "Server xatosi" });
     // }
-    if(!validateStep1()) return;
+    if (!validateStep1()) return;
     setStep(2)
   };
 
@@ -389,16 +404,22 @@ const RegistrationForm = () => {
               </div>
 
               <div className="mb-6">
-                <label className="block text-gray-700 mb-2">9 x 1 = ?</label>
+                <label className="block text-gray-700 mb-2">
+                  {mathQuestion.num1} x {mathQuestion.num2} = ?
+                </label>
                 <input
                   type="text"
                   name="mathAnswer"
                   value={formData.mathAnswer}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-md ${errors.mathAnswer ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`w-full px-3 py-2 border rounded-md ${errors.mathAnswer ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 />
-                {errors.mathAnswer && <p className="text-red-500 text-sm mt-1">{errors.mathAnswer}</p>}
+                {errors.mathAnswer && (
+                  <p className="text-red-500 text-sm mt-1">{errors.mathAnswer}</p>
+                )}
               </div>
+
               <button
                 onClick={handleSubmitStep1}
                 type="submit"
@@ -412,7 +433,7 @@ const RegistrationForm = () => {
               <p className="text-gray-600">
                 Akkauntingiz bormi?
                 <button
-                  onClick={() => navigate("/login")}
+                  onClick={() => setStep(2)}
                   className="text-blue-600 ml-1 underline"
                 >
                   Kirish
