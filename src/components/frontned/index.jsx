@@ -39,6 +39,8 @@ const FrontendCourse = () => {
   const { id } = location?.state;
   const findData = data.find((item) => item?.id === id);
   console.log(data);
+  console.log("kerakli", findData.lesson_bigs[1].lessons[0].lessons[0].status);
+  console.log("kerakli", findData);
 
   const handleSectionClick = (section) => {
     setExpandedItems((prev) => ({
@@ -214,8 +216,7 @@ const FrontendCourse = () => {
             {selectedSubLesson ? (
               <>
                 <Card title={selectedSubLesson.title} className="mb-6 shadow">
-                  <div className="aspect-w-16 aspect-h-9 mb-4 w-full h-[600px] max-sm:h-[196px]">
-                    {selectedSubLesson.video_url ? (
+                    {/* {selectedSubLesson.video_url ? (
                       <ReactPlayer
                         url={selectedSubLesson.video_url}
                         width="100%"
@@ -223,12 +224,22 @@ const FrontendCourse = () => {
                         controls
                       />
                     ) : (
-                      <div className="bg-gray-200 w-full h-64 flex items-center justify-center rounded">
+                      <div className="bg-gray-200 w-full h-full flex items-center justify-center rounded">
                         <PlayCircleFilled className="text-5xl text-blue-500" />
                       </div>
+                    )} */}
+                    {selectedSubLesson.video_url && (
+                      <div className="aspect-w-16 aspect-h-9 mb-4 w-full h-[600px] max-sm:h-[196px]">
+                        <ReactPlayer
+                          url={selectedSubLesson.video_url}
+                          width="100%"
+                          height="100%"
+                          controls
+                        />
+                      </div>
                     )}
-                  </div>
-                    {/* Dars boyicha */}
+
+                  {/* Dars boyicha */}
                   <div className="prose max-w-none">
                     <p className="mb-4">{selectedSubLesson.description}</p>
                     <br />
@@ -251,9 +262,11 @@ const FrontendCourse = () => {
                       </div>
                     )}
                     {/* compiler */}
-                    <div className="p-2 border border-gray-200 rounded">
-                      <CodeSubmitter id={id}/>
-                    </div>
+                    {selectedSubLesson.status !== "content" && (
+                      <div className="p-2 border border-gray-200 rounded">
+                        <CodeSubmitter id={id} />
+                      </div>
+                    )}
 
                   </div>
                 </Card>
