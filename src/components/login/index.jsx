@@ -286,6 +286,7 @@ const RegistrationForm = () => {
     //   console.error(err);
     //   notify({ type: "error", text: "Server xatosi" });
     // }
+    if(!validateStep1()) return;
     setStep(2)
   };
 
@@ -459,14 +460,6 @@ const RegistrationForm = () => {
                 Tasdiqlash
               </button>
 
-              <div className="mt-6 text-center text-sm text-gray-600">
-                Kod kelmadimi?
-                <button
-                  className="text-blue-600 underline ml-1 hover:text-blue-800 transition"
-                >
-                  Qayta yuborish
-                </button>
-              </div>
             </div>
 
             <div className="mt-6 text-center">
