@@ -259,35 +259,35 @@ const RegistrationForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-const handleSubmitStep1 = async (e) => {
-  // e.preventDefault(); 
-  // if (!validateStep1()) return;
+  const handleSubmitStep1 = async (e) => {
+    // e.preventDefault(); 
+    // if (!validateStep1()) return;
 
-  // try {
-  //   const response = await axios({
-  //     url: "/register/",
-  //     method: "POST",
-  //     data: {
-  //       first_name: formData.firstName,
-  //       last_name: formData.lastName,
-  //       phone: formData.phone,
-  //       password: formData.password,
-  //       uuid,
-  //     },
-  //   });
+    // try {
+    //   const response = await axios({
+    //     url: "/register/",
+    //     method: "POST",
+    //     data: {
+    //       first_name: formData.firstName,
+    //       last_name: formData.lastName,
+    //       phone: formData.phone,
+    //       password: formData.password,
+    //       uuid,
+    //     },
+    //   });
 
-  //   if (response?.status === "success") {
-  //     notify({ type: "success", text: "Kod yuborildi" });
-  //     setStep(2);
-  //   } else {
-  //     notify({ type: "error", text: "Ro'yxatdan o'tishda xatolik" });
-  //   }
-  // } catch (err) {
-  //   console.error(err);
-  //   notify({ type: "error", text: "Server xatosi" });
-  // }
-  setStep(2)
-};
+    //   if (response?.status === "success") {
+    //     notify({ type: "success", text: "Kod yuborildi" });
+    //     setStep(2);
+    //   } else {
+    //     notify({ type: "error", text: "Ro'yxatdan o'tishda xatolik" });
+    //   }
+    // } catch (err) {
+    //   console.error(err);
+    //   notify({ type: "error", text: "Server xatosi" });
+    // }
+    setStep(2)
+  };
 
 
   const handleSubmitStep2 = async (e) => {
@@ -399,7 +399,7 @@ const handleSubmitStep1 = async (e) => {
                 {errors.mathAnswer && <p className="text-red-500 text-sm mt-1">{errors.mathAnswer}</p>}
               </div>
               <button
-                onClick={handleSubmitStep1} 
+                onClick={handleSubmitStep1}
                 type="submit"
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200"
               >
@@ -421,50 +421,66 @@ const handleSubmitStep1 = async (e) => {
           </>
         ) : (
           <>
-            <div className="flex items-center mb-4 justify-between">
+            <div className="flex items-center mb-6 justify-between">
               <div className="flex-1">
-                <button className="border p-1 rounded-md border-[2px] border-[#2563eb] text-left" onClick={() => setStep(1)}>back</button>
+                <button
+                  onClick={() => setStep(1)}
+                  className="border border-blue-600 text-blue-600 px-4 py-1 rounded-md hover:bg-blue-100 transition"
+                >
+                  ← Orqaga
+                </button>
               </div>
-              <h1 className="flex-1 text-center text-2xl font-bold">Tasdiqlash</h1>
-              <div className="flex-1 text-right"></div>
+              <h1 className="flex-1 text-center text-2xl font-semibold text-gray-800">Tasdiqlash</h1>
+              <div className="flex-1"></div>
             </div>
-            <div>
-              <div className="mb-6">
-                <div className="head">
-                  <label className="block text-gray-700 mb-2" htmlFor="verificationCode">
-                    Tasdiqlash kodingizni kiriting
-                  </label>
-                </div>
-                <input
-                  type="text"
-                  id="verificationCode"
-                  name="verificationCode"
-                  value={formData.verificationCode}
-                  onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-md ${errors.verificationCode ? "border-red-500" : "border-gray-300"
-                    }`}
-                />
-                {errors.verificationCode && (
-                  <p className="text-red-500 text-sm mt-1">{errors.verificationCode}</p>
-                )}
-              </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <label htmlFor="verificationCode" className="block text-gray-700 text-sm mb-2">
+                Tasdiqlash kodingizni kiriting
+              </label>
+              <input
+                type="text"
+                id="verificationCode"
+                name="verificationCode"
+                value={formData.verificationCode}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-md text-gray-800 outline-none focus:ring-2 focus:ring-blue-500 ${errors.verificationCode ? "border-red-500" : "border-gray-300"
+                  }`}
+              />
+              {errors.verificationCode && (
+                <p className="text-red-500 text-sm mt-1">{errors.verificationCode}</p>
+              )}
 
               <button
                 onClick={handleSubmitStep2}
                 type="submit"
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200"
+                className="mt-4 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
               >
                 Tasdiqlash
               </button>
+
+              <div className="mt-6 text-center text-sm text-gray-600">
+                Kod kelmadimi?
+                <button
+                  className="text-blue-600 underline ml-1 hover:text-blue-800 transition"
+                >
+                  Qayta yuborish
+                </button>
+              </div>
             </div>
 
             <div className="mt-6 text-center">
-              <p className="text-gray-600">
-                Kod kelmadimi?
-                <button className="text-blue-600 ml-1 underline">Qayta yuborish</button>
-              </p>
+              <a
+                href="https://t.me/robologinbot"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-blue-600 border border-blue-600 px-4 py-2 rounded-md mt-4 hover:bg-blue-50 transition"
+              >
+                Tasdiqlash ko'dinini Telegram orqali oling
+              </a>
             </div>
           </>
+
         )}
 
         <div className="mt-8 pt-4 border-t border-gray-200">
