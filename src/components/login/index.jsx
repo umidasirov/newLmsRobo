@@ -259,75 +259,76 @@ const RegistrationForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmitStep1 = async (e) => {
-    // e.preventDefault();
-    // if (!validateStep1()) return;
+const handleSubmitStep1 = async (e) => {
+  // e.preventDefault(); 
+  // if (!validateStep1()) return;
 
-    // try {
-    //   const response = await axios({
-    //     url: "/register/",
-    //     method: "POST",
-    //     data: {
-    //       first_name: formData.firstName,
-    //       last_name: formData.lastName,
-    //       phone: formData.phone,
-    //       password: formData.password,
-    //       uuid,
-    //     },
-    //   });
+  // try {
+  //   const response = await axios({
+  //     url: "/register/",
+  //     method: "POST",
+  //     data: {
+  //       first_name: formData.firstName,
+  //       last_name: formData.lastName,
+  //       phone: formData.phone,
+  //       password: formData.password,
+  //       uuid,
+  //     },
+  //   });
 
-    //   if (response?.status === "success") {
-    //     notify({ type: "success", text: "Kod yuborildi" });
-    //     setStep(2);
-    //   } else {
-    //     notify({ type: "error", text: "Ro'yxatdan o'tishda xatolik" });
-    //   }
-    // } catch (err) {
-    //   console.error(err);
-    //   notify({ type: "error", text: "Server xatosi" });
-    // }
-    setStep(2)
-  };
+  //   if (response?.status === "success") {
+  //     notify({ type: "success", text: "Kod yuborildi" });
+  //     setStep(2);
+  //   } else {
+  //     notify({ type: "error", text: "Ro'yxatdan o'tishda xatolik" });
+  //   }
+  // } catch (err) {
+  //   console.error(err);
+  //   notify({ type: "error", text: "Server xatosi" });
+  // }
+  setStep(2)
+};
+
 
   const handleSubmitStep2 = async (e) => {
-    // e.preventDefault();
-    // if (!formData.verificationCode) {
-    //   setErrors({ verificationCode: "Tasdiqlash kodi kiritilmadi" });
-    //   return;
-    // }
+    e.preventDefault();
+    if (!formData.verificationCode) {
+      setErrors({ verificationCode: "Tasdiqlash kodi kiritilmadi" });
+      return;
+    }
 
-    // try {
-    //   const response = await axios({
-    //     url: "/verify_code/",
-    //     method: "POST",
-    //     data: {
-    //       code: formData.verificationCode,
-    //       uuid,
-    //     },
-    //   });
+    try {
+      const response = await axios({
+        url: "/verify_code/",
+        method: "POST",
+        data: {
+          code: formData.verificationCode,
+          uuid,
+        },
+      });
 
-    //   if (response?.status === "success") {
-    //     notify({ type: "loginSuccses" });
-    //     localStorage.setItem("token", response?.token);
-    //     localStorage.setItem("balance", response?.user_balance);
-    //     localStorage.setItem("phone", response?.phone);
-    //     navigate("/");
-    //   } else {
-    //     notify({ type: "error", text: "Kod noto'g'ri" });
-    //   }
-    // } catch (err) {
-    //   console.error(err);
-    //   notify({ type: "error", text: "Server xatosi" });
-    // }
+      if (response?.status === "success") {
+        notify({ type: "loginSuccses" });
+        localStorage.setItem("token", response?.token);
+        localStorage.setItem("balance", response?.user_balance);
+        localStorage.setItem("phone", response?.phone);
+        navigate("/");
+      } else {
+        notify({ type: "error", text: "Kod noto'g'ri" });
+      }
+    } catch (err) {
+      console.error(err);
+      notify({ type: "error", text: "Server xatosi" });
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
-        {step === 1 ? (
+        {step == 1 ? (
           <>
             <h1 className="text-2xl font-bold text-center mb-6">Ro'yxatdan o'tish</h1>
-            <div onClick={handleSubmitStep1}>
+            <div>
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2" htmlFor="firstName">Ism</label>
                 <input
@@ -398,6 +399,7 @@ const RegistrationForm = () => {
                 {errors.mathAnswer && <p className="text-red-500 text-sm mt-1">{errors.mathAnswer}</p>}
               </div>
               <button
+                onClick={handleSubmitStep1} 
                 type="submit"
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200"
               >
@@ -421,7 +423,7 @@ const RegistrationForm = () => {
           <>
             <div className="flex items-center mb-4 justify-between">
               <div className="flex-1">
-              <button className="border p-1 rounded-md border-[2px] border-[#2563eb] text-left" onClick={()=>setStep(1)}>back</button>
+                <button className="border p-1 rounded-md border-[2px] border-[#2563eb] text-left" onClick={() => setStep(1)}>back</button>
               </div>
               <h1 className="flex-1 text-center text-2xl font-bold">Tasdiqlash</h1>
               <div className="flex-1 text-right"></div>
@@ -448,6 +450,7 @@ const RegistrationForm = () => {
               </div>
 
               <button
+                onClick={handleSubmitStep2}
                 type="submit"
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200"
               >
