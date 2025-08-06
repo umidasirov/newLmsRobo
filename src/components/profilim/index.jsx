@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useAxios } from "../../hooks";
 const Profilim = () => {
   const navigate = useNavigate()
-  const { user,setTeacherData,teacherData,setCourseData,courseData } = useData();
+  const { user,data, setTeacherData, teacherData, setCourseData, courseData } = useData();
 
   const telefon = user.phone || localStorage.getItem("phone");
   const balans = localStorage.getItem("balance");
@@ -36,10 +36,23 @@ const Profilim = () => {
       .then((data) => setCourseData(data))
       .catch((error) => console.log(error));
   }, [axios, setCourseData]);
-  const postID = (slug) => {
-    navigate(`/team2/`, { state: { name: slug } });
+
+  const token = localStorage.getItem("token");
+  const postId = (id) => {
+    const chioseData = data.find((item) => item?.id === id);
+
+    if (!token && chioseData?.paid === false) {
+      navigate(`/kirish2/`, { state: { id: id } });
+    } else if (token && chioseData?.paid === false) {
+      navigate(`/kirish2/`, { state: { id: id } });
+    } else if (!token && chioseData?.paid === true) {
+      navigate(`/kirish2/`, { state: { id: id } });
+    } else {
+      navigate(`/frontned/`, { state: { id: id } });
+    }
   };
-  
+
+  console.log(courseData);
 
   return (
     <div className="m-center flex overflow-hidden px-8 text-gray-80 w-full h-full h-[100rem] w-[80%] max-sm:flex-col">
@@ -107,19 +120,19 @@ const Profilim = () => {
                 alt={course.title}
                 className="w-full h-48 object-cover rounded-xl mb-4"
               />
-              <div className="text-gray-800 text-xl font-semibold mb-1">{course.title}</div>
-              <div className="text-gray-600 mb-2">
+              <div className="text-gray-800 text-xl h-[60px] font-semibold mb-1">{course.title}</div>
+              <div className="text-gray-600 mb-2 h-[40px]">
                 <div className="text-sm">Narxi: {course.price} so‘m</div>
                 <div className="text-sm">Daraja: {course.level}</div>
               </div>
-              <div className="text-gray-500 text-sm italic">{course.description?.slice(0, 80)}...</div>
+              <div className="text-gray-500 text-sm h-[60px] italic">{course.description?.slice(0, 80)}...</div>
               <div className="text-center mt-3">
-                <Link
-                  to={`/course/${course.slug}`}
+                <div
+                  onClick={() => postId(course.id)}
                   className="inline-block border border-gray-500 rounded px-3 py-1 text-gray-500 hover:bg-gray-100"
                 >
                   Batafsil
-                </Link>
+                </div>
               </div>
             </div>
           ))}
