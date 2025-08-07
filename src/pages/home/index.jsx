@@ -12,13 +12,13 @@ import PistonCompiler from "../../components/compiler";
 
 function Home() {
   return (
-    <div className="sm:w-[1640px] sm:mx-auto w-100%">
+    <div className="w-full sm:max-w-[1640px] sm:mx-auto">
       {/* <SlayderKomponenti /> */}
       <SwiperComponent />
       <SertificateComponents />
       <KirishComponents />
       <KursToifalariComponents />
-      <PremiumEducation />  
+      <PremiumEducation />
       <AnimatedStats />
       <TeamComponents />
       <IshtirockComponents />
