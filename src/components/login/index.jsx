@@ -5,9 +5,11 @@ import Cookies from "js-cookie";
 import { UserOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import { useAxios } from "../../hooks";
 import notificationApi from "../../generic/notificition";
+import { useData } from "../../datacontect";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+
   const axios = useAxios();
   const [codeDigits, setCodeDigits] = useState(["", "", "", "", "", ""]);
   const [status, setStatus] = useState("");
@@ -16,6 +18,8 @@ const LoginPage = () => {
   const uuid = Cookies.get("my_uuid");
   const access = localStorage.getItem("token");
   const notify = notificationApi();
+
+  const {useD} = useData()
   useEffect(() => {
     if (!uuid) {
       const newUUID = uuidv4();
@@ -84,9 +88,12 @@ const LoginPage = () => {
         if (data?.status === "success") {
           notify({ type: "loginSuccses" });
         }
+        console.log("Serverdan kelgan data:", data);
+        // setD(data)
         localStorage.setItem("token", data?.token);
         localStorage.setItem("balance", data?.user_balance);
         localStorage.setItem("phone", data?.phone);
+        localStorage.setItem("status", data?.pay_status);
         navigate("/profilim");
       })
       .catch((error) =>{

@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useAxios } from "../../hooks";
 const Profilim = () => {
   const navigate = useNavigate()
-  const { user,data, setTeacherData, teacherData, setCourseData, courseData } = useData();
+  const { user,data, setTeacherData, teacherData, setCourseData, courseData,d,setD } = useData();
 
   const telefon = user.phone || localStorage.getItem("phone");
   const balans = localStorage.getItem("balance");
@@ -33,11 +33,14 @@ const Profilim = () => {
       url: "/api/courses/",
       method: "GET",
     })
-      .then((data) => setCourseData(data))
+      .then((data) => {
+        setCourseData(data)
+      })
       .catch((error) => console.log(error));
   }, [axios, setCourseData]);
-
   const token = localStorage.getItem("token");
+  console.log(courseData);
+  
   const postId = (id) => {
     const chioseData = data.find((item) => item?.id === id);
 
@@ -52,7 +55,7 @@ const Profilim = () => {
     }
   };
 
-  console.log(courseData);
+  console.log(d);
 
   return (
     <div className="m-center flex overflow-hidden px-8 text-gray-80 w-full h-full h-[100rem] w-[80%] max-sm:flex-col">

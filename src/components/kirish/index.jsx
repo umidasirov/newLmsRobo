@@ -23,15 +23,15 @@ function KirishComponents() {
   const postId = (id) => {
     const chioseData = data.find((item) => item?.id === id);
 
-    if (!token && chioseData?.paid === false) {
+    // if (!token && chioseData?.paid === false) {
       navigate(`/kirish2/`, { state: { id: id } });
-    } else if (token && chioseData?.paid === false) {
-      navigate(`/kirish2/`, { state: { id: id } });
-    } else if (!token && chioseData?.paid === true) {
-      navigate(`/kirish2/`, { state: { id: id } });
-    } else {
-      navigate(`/frontned/`, { state: { id: id } });
-    }
+    // } else if (token && chioseData?.paid === false) {
+    //   navigate(`/kirish2/`, { state: { id: id } });
+    // } else if (!token && chioseData?.paid === true) {
+    //   navigate(`/kirish2/`, { state: { id: id } });
+    // } else {
+    //   navigate(`/frontned/`, { state: { id: id } });
+    // }
   };
 
   const truncateDescription2 = (text, limit = 27) => {

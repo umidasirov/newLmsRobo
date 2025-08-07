@@ -58,6 +58,24 @@ const RegistrationForm = () => {
       // Bu yerda kod yuborish logikasi bo'lishi mumkin
     }
   };
+  let phone = localStorage.getItem("phone") || "";
+  useEffect(() => {
+
+    if (phone.startsWith("+998")) {
+      phone = phone.slice(4);
+    } else if (phone.startsWith("998")) {
+      phone = phone.slice(3);
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      phone,
+    }));
+  }, []);
+
+
+
+  console.log(phone);
 
   const handleSubmitStep2 = (e) => {
     e.preventDefault();
@@ -84,7 +102,7 @@ const RegistrationForm = () => {
                 type="text"
                 id="firstName"
                 name="firstName"
-                value={formData.firstName}
+                value={localStorage.getItem("pay_status")}
                 onChange={handleChange}
                 className={`w-full px-3 py-2 border rounded-md ${errors.firstName ? 'border-red-500' : 'border-gray-300'}`}
               />
@@ -116,7 +134,7 @@ const RegistrationForm = () => {
                   type="tel"
                   id="phone"
                   name="phone"
-                  value={formData.phone}
+                  value={phone}
                   onChange={handleChange}
                   placeholder="9x1234567"
                   className={`flex-1 px-3 py-2 border rounded-r-md ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}

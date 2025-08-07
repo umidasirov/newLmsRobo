@@ -184,8 +184,8 @@ const FrontendCourse = () => {
                           </div>
 
                           {expandedItems.lesson === lesson.id && (
-                            <div className="ml-4 space-y-1">
-                              {lesson.lessons.map((subLesson) => (
+                            <div className="ml-4 space-y-1 hover:bg-blue-50">
+                              {/* {lesson.lessons.map((subLesson) => (
                                 <div
                                   key={subLesson.id}
                                   className={`flex items-center p-2 hover:bg-blue-50 rounded cursor-pointer ${selectedSubLesson?.id === subLesson.id
@@ -200,7 +200,7 @@ const FrontendCourse = () => {
                                     {subLesson.title}
                                   </span>
                                 </div>
-                              ))}
+                              ))} */}
                             </div>
                           )}
                         </div>

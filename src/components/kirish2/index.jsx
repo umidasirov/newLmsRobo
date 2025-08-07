@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { CheckOutlined, CodeOutlined } from "@ant-design/icons";
 import { useData } from "../../datacontect";
@@ -7,6 +7,7 @@ import { useAxios } from "../../hooks";
 import notificationApi from "../../generic/notificition";
 function KirishComponentsID() {
   const { data } = useData();
+  const [status, setStatus] = useState(false)
   const location = useLocation();
   const { id } = location?.state;
   const axios = useAxios();
@@ -19,13 +20,38 @@ function KirishComponentsID() {
   console.log(findData, "kndsyc");
 
   const token = localStorage.getItem("token");
-
+  
   const postData = () => {
     if (!token) {
       notify({ type: "token" });
       return;
     }
   };
+  useEffect(() => {
+    if (findData) {
+      onstatus();
+    }
+  }, [findData]);
+
+  function onstatus() {
+    if (!token) return;
+
+    const data = { course_id: findData.id };
+
+    axios({
+      url: "/api/purchased-courses/",
+      method: "POST", // <-- AYNIKSA, BU ENDPOINT TO‘G‘RIMI? Agar bu faqat `/check/` bo‘lsa!
+      data,
+    })
+    .then((res) => {
+        notify({ type: "buyCourses" });
+        setStatus(true);
+      })
+      .catch((error) => {
+        console.log("Status check error:", error);
+      });
+  }
+
 
   const buyCourse = (id) => {
     if (!token) {
@@ -46,7 +72,7 @@ function KirishComponentsID() {
       .then((data) => {
         console.log(data);
         if (data?.message === "You have already purchased this course") {
-          notify({ type: "buyCourses" });
+          navigate(`/frontned/`, { state: { id: id } });
         } else {
           notify({ type: "success" });
           navigate("/course-detail", { state: { id: findData.id } });
@@ -161,31 +187,50 @@ function KirishComponentsID() {
                     </span>
                   </div>
                 </div>
-
+                {status &&
+                  <div className="border-t border-b py-4 my-4">
+                    <div className="flex items-center mt-1">
+                      <span className="text-xl font-bold">
+                        Status:
+                      </span>
+                      <span className="text-gray-400 ml-2 text-sm">
+                        To'landi ✔
+                      </span>
+                    </div>
+                  </div>}
+                  {status?
+                <button
+                  onClick={() => navigate(`/frontned/`, { state: { id: findData?.id }})}
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-md w-full py-3 font-medium transition duration-300 shadow-md"
+                >
+                  Kursga o'tish
+                </button>:
                 <button
                   onClick={() => buyCourse(findData?.id)}
                   className="bg-blue-600 hover:bg-blue-700 text-white rounded-md w-full py-3 font-medium transition duration-300 shadow-md"
                 >
                   Sotib olish
                 </button>
-
-                <div className="flex justify-around mt-4">
-                  <img
-                    src="https://api.logobank.uz/media/logos_png/Uzcard-01.png"
-                    alt="Payment method 1"
-                    className="h-12 w-12 rounded-md"
-                  />
-                  <img
-                    src="https://humocard.uz/upload/medialibrary/8cf/ia2yatyqt4l0p0d5523erhmx6y0fssxw/HumoPay-Final-002.png"
-                    alt="Payment method 2"
-                    className="h-12 w-12 rounded-md"
-                  />
-                  <img
-                    src="https://pr.uz/wp-content/uploads/2024/05/photo_2024-05-14_20-27-31.jpg"
-                    alt="Payment method 3"
-                    className="h-12 w-12 rounded-md"
-                  />
-                </div>
+                  }
+                {!status &&
+                  <div className="flex justify-around mt-4">
+                    <img
+                      src="https://api.logobank.uz/media/logos_png/Uzcard-01.png"
+                      alt="Payment method 1"
+                      className="h-12 w-12 rounded-md"
+                    />
+                    <img
+                      src="https://humocard.uz/upload/medialibrary/8cf/ia2yatyqt4l0p0d5523erhmx6y0fssxw/HumoPay-Final-002.png"
+                      alt="Payment method 2"
+                      className="h-12 w-12 rounded-md"
+                    />
+                    <img
+                      src="https://pr.uz/wp-content/uploads/2024/05/photo_2024-05-14_20-27-31.jpg"
+                      alt="Payment method 3"
+                      className="h-12 w-12 rounded-md"
+                    />
+                  </div>
+                }
               </div>
             </div>
           </div>

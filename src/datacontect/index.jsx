@@ -8,6 +8,7 @@ export const DataProvider = ({ children }) => {
   const [teacherData, setTeacherData] = useState([]);
   const [course,setCourse] = useState([])
   const [courseData,setCourseData] = useState([])
+  const [d,setD] = useState({})
   const user =
     {
       name: "Umid",
@@ -56,6 +57,8 @@ export const DataProvider = ({ children }) => {
         setBlogData,
         teacherData,
         setTeacherData,
+        d,
+        setD
       }}
     >
       {children}

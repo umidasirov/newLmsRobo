@@ -4,8 +4,8 @@ const notificationApi = () => {
   const notify = ({ type }) => {
     switch (type) {
       case "buyCourses":
-        return notification.error({
-          message: "You have already purchased this course!",
+        return notification.info({
+          message: "Siz allaqachon kursga yozilgansiz!",
         });
       case "success":
         return notification.success({
