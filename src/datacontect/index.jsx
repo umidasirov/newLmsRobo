@@ -23,8 +23,15 @@ export const DataProvider = ({ children }) => {
     level: 12,
     bought: [
       {
-        id: 1, // kurs id
-        status: "bought", // yoki true/false
+        "id": 1,
+        "username": "Madaminov Salohiddin",
+        "job": "python, mobile application",
+        "about": "anything",
+        "direction": "python, mobile application",
+        "experience": "4",
+        "work_place": "Infinite Co",
+        "img": "/media/user/Otabek-Nurmatov.webp",
+        "slug": "madaminov-salohiddin"
       },
     ],
     proccess: 0, // Profil to'ldirilganlik foizi uchun key
