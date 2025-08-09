@@ -1,146 +1,164 @@
-import {
-  UserOutlined,
-  BookOutlined,
-  IdcardOutlined,
-  PhoneOutlined,
-  EnvironmentOutlined
-} from "@ant-design/icons";
 import { useEffect } from "react";
 import { useData } from "../../datacontect";
-import { Link } from "react-router-dom";
-import { div } from "framer-motion/client";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAxios } from "../../hooks";
-const Profilim = () => {
-  const navigate = useNavigate()
-  const { user,data, setTeacherData, teacherData, setCourseData, courseData,d,setD } = useData();
+import { EditOutlined } from "@ant-design/icons";
+import Reception from "../reception/index"; // reception joylashgan joyi
 
-  const telefon = user.phone || localStorage.getItem("phone");
-  const balans = localStorage.getItem("balance");
-  const url = "https://api.myrobo.uz";
+const Profilim = () => {
+  const navigate = useNavigate();
+  const context = useData();
+  if (!context) {
+    return <div>Loading...</div>;
+  }
+  const {
+    user,
+    data,
+    setTeacherData,
+    teacherData,
+    setCourseData,
+    courseData,
+    showProfileForm,
+    setShowProfileForm,
+    n,
+    progress,
+  } = context;
+
   const axios = useAxios();
+  const url = "https://api.myrobo.uz";
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
-    axios({
-      url: "/api/teacher/",
-      method: "GET",
-    })
+    user.proccess = n;
+    axios({ url: "/api/teacher/", method: "GET" })
       .then((data) => setTeacherData(data))
       .catch((error) => console.log(error));
   }, [axios, setTeacherData]);
 
   useEffect(() => {
-    axios({
-      url: "/api/courses/",
-      method: "GET",
-    })
-      .then((data) => {
-        setCourseData(data)
-      })
+    axios({ url: "/api/courses/", method: "GET" })
+      .then((data) => setCourseData(data))
       .catch((error) => console.log(error));
   }, [axios, setCourseData]);
-  const token = localStorage.getItem("token");
-  console.log(courseData);
-  
+
   const postId = (id) => {
     const chioseData = data.find((item) => item?.id === id);
 
-    if (!token && chioseData?.paid === false) {
-      navigate(`/kirish2/`, { state: { id: id } });
-    } else if (token && chioseData?.paid === false) {
-      navigate(`/kirish2/`, { state: { id: id } });
-    } else if (!token && chioseData?.paid === true) {
-      navigate(`/kirish2/`, { state: { id: id } });
+    if (!token) {
+      navigate(`/kirish2/`, { state: { id } });
     } else {
-      navigate(`/frontned/`, { state: { id: id } });
+      navigate(`/frontned/`, { state: { id } });
     }
   };
 
-  console.log(d);
-
   return (
-    <div className="m-center flex overflow-hidden px-8 text-gray-80 w-full h-full h-[100rem] w-[80%] max-sm:flex-col">
-      {/* sidebar */}
-      <div className="sidebar text-center p-8">
-        <h1 className="text-[30px]">Salom, <span className="text-blue-400">{user.name}</span></h1>
-        <p className="text-[15px] border-b border-grey-200 pb-4 mb-10">Boshqaruv paneliga xush kelibsiz</p>
-        <div className="profile-com">
-          <div className="flex w-full justify-between"><div>Profilni toldirish</div> <div>{user.proccess}%</div></div>
-          <div className="border rounded w-full h-[10px] bg-blue-100">
-            <div className={`w-[${user.proccess}%] rounded bg-blue-500 h-full`}></div>
+    <div className="min-h-screen flex flex-col md:flex-row p-4 md:p-8 text-gray-800 gap-6">
+      {/* Sidebar */}
+      <aside className="w-full md:w-1/4 bg-white p-6 rounded-xl shadow flex flex-col items-center text-center">
+        <h1 className="text-2xl font-bold mb-2">
+          Salom, <span className="text-blue-500">{user.name}</span>
+        </h1>
+        <p className="text-sm text-gray-500 mb-6">
+          Boshqaruv paneliga xush kelibsiz
+        </p>
+
+        <button
+          onClick={() => setShowProfileForm(true)}
+          className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition duration-200"
+        >
+          <EditOutlined />
+          Profilni to‘ldirish
+        </button>
+
+        {/* Progress bar */}
+        <div className="w-full mt-6">
+          <div className="flex justify-between text-sm mb-1">
+            <span>Profil to‘ldirilganlik darajasi</span>
+            <span>{user.proccess ?? 0}%</span>
+          </div>
+          <div className="w-full h-2 bg-blue-100 rounded overflow-hidden">
+            <div
+              className="h-2 bg-blue-500 rounded transition-all duration-500"
+              style={{ width: `${user.proccess ?? 0}%` }}
+            ></div>
           </div>
         </div>
-      </div>
-      {/* get start */}
-      <div className="main-profile-content w-[80%] max-sm:w-full border-l border-gray-200 p-6" >
-        <h1 className="start text-[50px] border-b border-grey-200 mb-5 pb-4">Boshlash</h1>
+      </aside>
 
-        <h1 className="start text-[30px] mb-5 pb-4">Mening kurslarim</h1>
-        <div className="flex items-center gap-6 max-md:flex-col">
-          {user.bought.map((e) => (
-            <Link
-              to="/team2"
-              state={{ name: e.slug }}
-              key={e.slug}
-              className="block w-[300px]"
-            >
-              <div className="bg-white shadow-md hover:shadow-xl transition-shadow duration-300 rounded-2xl overflow-hidden border border-gray-200 p-4 mb-6">
+      {/* Main content */}
+      <main className="flex-1 p-4 md:p-6 bg-white rounded-xl shadow overflow-auto">
+        <h1 className="text-4xl font-bold border-b pb-4 mb-6">Boshlash</h1>
+
+        {/* Mening kurslarim */}
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">Mening kurslarim</h2>
+          <div className="flex flex-wrap gap-6 justify-center md:justify-start">
+            {user.bought.map((e) => (
+              <Link
+                to="/team2"
+                state={{ name: e.slug }}
+                key={e.slug}
+                className="block w-full max-w-xs md:w-[300px]"
+              >
+                <div className="bg-white shadow-md hover:shadow-xl rounded-xl overflow-hidden border p-4 transition-all">
+                  <img
+                    src={url + e.img}
+                    alt={e.username}
+                    className="w-full h-48 object-cover rounded-xl mb-4"
+                  />
+                  <div className="font-semibold text-lg">{e.username}</div>
+                  <div className="text-sm text-gray-500">{e.job}</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Mashxur kurslar */}
+        <section className="mt-12">
+          <h2 className="text-2xl font-semibold mb-4">Mashxur kurslar</h2>
+          <div className="flex flex-wrap gap-6 justify-center md:justify-start">
+            {courseData?.map((course) => (
+              <div
+                key={course.slug}
+                className="bg-white w-full max-w-xs md:w-[300px] shadow-md hover:shadow-xl rounded-xl overflow-hidden border p-4"
+              >
                 <img
-                  src={url + e.img}
-                  alt={e.username}
+                  src={course.img}
+                  alt={course.title}
                   className="w-full h-48 object-cover rounded-xl mb-4"
                 />
-                <div className="text-gray-800 text-xl font-semibold mb-1">{e.username}</div>
-                <div className="text-gray-600 mb-2">
-                  <div className="text-sm">{e.job}</div>
-                  <div className="text-sm">
-                    Tajriba: <span className="font-medium text-gray-800">+{e.experience} yil</span>
-                  </div>
-                </div>
-                <div className="text-gray-700 text-sm italic mb-3">{e.about}</div>
-                <div className="text-gray-500 text-sm">
-                  Ish joyi: <span className="font-semibold text-gray-700">{e.work_place}</span>
-                </div>
-                <div className="text-center p-1">
-                  <div className="center border border-gray-500 rounded p-1 text-gray-500">
-                    To‘liq...
-                  </div>
+                <div className="font-semibold text-lg h-[60px]">{course.title}</div>
+                <div className="text-sm text-gray-600">Narxi: {course.price} so‘m</div>
+                <div className="mt-3">
+                  <button
+                    onClick={() => postId(course.id)}
+                    className="border border-gray-500 px-3 py-1 rounded hover:bg-gray-100 w-full"
+                  >
+                    Batafsil
+                  </button>
                 </div>
               </div>
-            </Link>
-          ))}
-        </div>
+            ))}
+          </div>
+        </section>
+      </main>
 
-        <h1 className="start text-[30px] mb-5 pb-4">Mashxur kurslar</h1>
-
-        <div className="flex flex-wrap gap-6">
-          {courseData?.map((course) => (
-            <div
-              key={course.slug}
-              className="bg-white w-[300px] max-sm:w-full shadow-md hover:shadow-xl transition-shadow duration-300 rounded-2xl overflow-hidden border border-gray-200 p-4"
+      {/* Reception modal */}
+      {showProfileForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-lg relative">
+            <button
+              onClick={() => setShowProfileForm(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl"
+              aria-label="Close modal"
             >
-              <img
-                src={course.img}
-                alt={course.title}
-                className="w-full h-48 object-cover rounded-xl mb-4"
-              />
-              <div className="text-gray-800 text-xl h-[60px] font-semibold mb-1">{course.title}</div>
-              <div className="text-gray-600 mb-2 h-[40px]">
-                <div className="text-sm">Narxi: {course.price} so‘m</div>
-                <div className="text-sm">Daraja: {course.level}</div>
-              </div>
-              <div className="text-gray-500 text-sm h-[60px] italic">{course.description?.slice(0, 80)}...</div>
-              <div className="text-center mt-3">
-                <div
-                  onClick={() => postId(course.id)}
-                  className="inline-block border border-gray-500 rounded px-3 py-1 text-gray-500 hover:bg-gray-100"
-                >
-                  Batafsil
-                </div>
-              </div>
-            </div>
-          ))}
+              ✕
+            </button>
+            <Reception a={setShowProfileForm} />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
