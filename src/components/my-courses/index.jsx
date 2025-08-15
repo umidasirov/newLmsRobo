@@ -3,26 +3,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button, Empty } from "antd"; // Empty komponentini qo'shdik
 import { useNavigate } from "react-router-dom";
 import { useAxios } from "../../hooks";
-
+import { useData } from "../../datacontect";
 function MeningKurslarim() {
   const [activeCard, setActiveCard] = useState(null);
   const axios = useAxios();
-  const [data, setData] = useState();
   const [load, setLoad] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setLoad(true);
-    axios({
-      url: "/api/courses/",
-      method: "GET",
-    })
-      .then((data) => {
-        setData(data)
-        setLoad(false);
-      })
-      .catch((error) => console.log(error));
-  }, []);
+  const { data } = useData();
+  // useEffect(() => {
+  //   setLoad(true);
+  //   axios({
+  //     url: "/api/courses/",
+  //     method: "GET",
+  //   })
+  //     .then((data) => {
+  //       setData(data)
+  //       setLoad(false);
+  //     })
+  //     .catch((error) => console.log(error));
+  // }, []);
 
   const postId = (id) => {
     navigate(`/frontned/`, { state: { id: id } });
