@@ -26,77 +26,53 @@ const Profilim = () => {
     n
   } = context;
 
-
-  const pId = (id) => {
-    const chioseData = data.find((item) => item?.id === id);
-    alert(id)
-    navigate(`/kirish2/`, { state: { id: id } });
-  };
-
   const axios = useAxios();
   const url = "https://api.myrobo.uz";
   const token = localStorage.getItem("token");
 
-  // 🔹 get-user zaprosini 3 sek.da yuborish va user state’ni yangilash
+  // Fetch user details
   useEffect(() => {
     if (!token) return;
 
     const fetchUser = () => {
-      console.log("ish boshlandi");
-
       axios({
         url: "/api/user-get/",
         method: "GET",
         headers: { Authorization: `Token ${token}` }
       })
         .then((res) => {
-          console.log("GET-USER RESPONSE:", res);
-          setUser(res); // 🔹 user state’ni yangilash
+          setUser(res);
         })
-        .catch((err) => {
-          console.error("GET-USER ERROR:", err);
-        });
+        .catch((err) => console.error("GET-USER ERROR:", err));
     };
 
-    fetchUser(); // birinchi chaqirish  
+    fetchUser();
     const interval = setInterval(fetchUser, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [axios, token, setUser]);
 
+  // Fetch teachers data
   useEffect(() => {
     if (!token) return;
-    axios({ url: "/api/teacher/", method: "GET" })
-      .then((data) => {
-        setTeacherData(data)
-        console.log("GET-USER RESPONSE:", res);
-      })
-      .catch((error) => console.log(error));
+
+    axios({
+      url: "/api/teacher/",
+      method: "GET"
+    })
+      .then((data) => setTeacherData(data))
+      .catch((error) => console.error(error));
   }, [axios, setTeacherData, token]);
 
+  // Fetch course data
   useEffect(() => {
     axios({ url: "/api/courses/", method: "GET" })
       .then((data) => setCourseData(data))
-      .catch((error) => console.log(error));
-  }, []);
+      .catch((error) => console.error(error));
+  }, [axios, setCourseData]);
 
-  const postId = (id) => {
-    const chioseData = data.find((item) => item?.id === id);
-    if (!token) {
-      navigate(`/kirish2/`, { state: { id } });
-    } else {
-      navigate(`/frontned/`, { state: { id } });
-    }
-  };
-
-  const goMentor = (slug) => {
-    navigate(`/team2/`, { state: { name: slug } });
-  };
-
-
-  console.log(courseData, "courseData");
   const uniqueMentors = Array.from(
-    new Map(user.user_mentors.map(m => [m.id, m])).values()
+    new Map(user?.user_mentors?.map(m => [m.id, m])).values() || [] // Safe access here
   );
 
   return (
@@ -105,13 +81,9 @@ const Profilim = () => {
       <aside className="w-full md:w-1/4 bg-white p-6 rounded-xl shadow flex flex-col items-center text-center">
         <h1 className="text-2xl font-bold mb-2">
           Salom,{" "}
-          <span className="text-blue-500">
-            {user?.name || "Foydalanuvchi"}
-          </span>
+          <span className="text-blue-500">{user?.name || "Foydalanuvchi"}</span>
         </h1>
-        <p className="text-sm text-gray-500 mb-6">
-          Boshqaruv paneliga xush kelibsiz
-        </p>
+        <p className="text-sm text-gray-500 mb-6">Boshqaruv paneliga xush kelibsiz</p>
 
         <button
           onClick={() => setShowProfileForm(true)}
@@ -147,6 +119,7 @@ const Profilim = () => {
             <KirishComponents center={false} sort={true} />
           </div>
         </section>
+
         {/* Mening mentorlarim */}
         <section className="mt-12">
           <h2 className="text-2xl font-semibold mb-4">Mening mentorlarim</h2>
@@ -167,22 +140,16 @@ const Profilim = () => {
                     <div className="font-semibold text-lg">{mentor.ism}</div>
                     <div className="text-sm text-gray-500">{mentor.job}</div>
                     <div className="text-sm text-gray-400">{mentor.direction}</div>
-                    <div className="mt-2 text-xs text-gray-500">
-                      Tajriba: {mentor.experience} yil
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Ish joyi: {mentor.work_place}
-                    </div>
+                    <div className="mt-2 text-xs text-gray-500">Tajriba: {mentor.experience} yil</div>
+                    <div className="text-xs text-gray-500">Ish joyi: {mentor.work_place}</div>
                   </div>
                 </div>
               ))
             ) : (
               <p className="text-gray-500">Sizda hali mentorlar yo‘q</p>
             )}
-
           </div>
         </section>
-
 
         {/* Mashxur kurslar */}
         <section className="mt-12">
