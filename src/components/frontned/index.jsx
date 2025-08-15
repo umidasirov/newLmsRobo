@@ -170,7 +170,7 @@ const id = location?.state?.id;
                     onClick={() => handleSectionClick(section)}
                   >
                     <PlayCircleFilled className="text-blue-500 mr-2" />
-                    <span>{section.title}</span>
+                    <span className='text-[16px]'>{section.title}</span>
                   </div>
 
                   {expandedItems.section === section.id && (
@@ -184,7 +184,7 @@ const id = location?.state?.id;
                               }`}
                             onClick={() => handleLessonClick(lesson)}
                           >
-                            <span className="text-sm">{lesson.title}</span>
+                            <span className="text-sm text-[17px] max-sm:text-[10px]">{lesson.title}</span>
                           </div>
 
                           {expandedItems.lesson === lesson.id && (

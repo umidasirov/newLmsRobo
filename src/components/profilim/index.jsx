@@ -42,6 +42,7 @@ const Profilim = () => {
       })
         .then((res) => {
           setUser(res);
+          console.log("User details fetched:", res);
         })
         .catch((err) => console.error("GET-USER ERROR:", err));
     };
@@ -50,7 +51,7 @@ const Profilim = () => {
     const interval = setInterval(fetchUser, 3000);
 
     return () => clearInterval(interval);
-  }, [axios, token, setUser]);
+  }, []);
 
   // Fetch teachers data
   useEffect(() => {
@@ -62,19 +63,15 @@ const Profilim = () => {
     })
       .then((data) => setTeacherData(data))
       .catch((error) => console.error(error));
-  }, [axios, setTeacherData, token]);
+  }, []);
 
   // Fetch course data
   useEffect(() => {
     axios({ url: "/api/courses/", method: "GET" })
       .then((data) => setCourseData(data))
       .catch((error) => console.error(error));
-  }, [axios, setCourseData]);
-
-  const uniqueMentors = Array.from(
-    new Map(user?.user_mentors?.map(m => [m.id, m])).values() || [] // Safe access here
-  );
-
+  }, []);
+  console.log(user)
   return (
     <div className="min-h-screen flex flex-col md:flex-row p-4 md:p-8 text-gray-800 gap-6">
       {/* Sidebar */}
@@ -124,8 +121,8 @@ const Profilim = () => {
         <section className="mt-12">
           <h2 className="text-2xl font-semibold mb-4">Mening mentorlarim</h2>
           <div className="flex flex-wrap gap-6 justify-center md:justify-start">
-            {uniqueMentors.length > 0 ? (
-              uniqueMentors.map((mentor) => (
+            {user?.user_mentors?.length > 0 ? (
+              user?.user_mentors?.map((mentor) => (
                 <div
                   key={mentor.id}
                   onClick={() => navigate(`/team2`, { state: { name: mentor.slug } })}
