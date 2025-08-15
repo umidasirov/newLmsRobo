@@ -19,7 +19,7 @@ const LoginPage = () => {
   const access = localStorage.getItem("token");
   const notify = notificationApi();
 
-  const {useD} = useData()
+  const { setD } = useData()
   useEffect(() => {
     if (!uuid) {
       const newUUID = uuidv4();
@@ -89,18 +89,65 @@ const LoginPage = () => {
           notify({ type: "loginSuccses" });
         }
         console.log("Serverdan kelgan data:", data);
-        // setD(data)
+        setD(data)
         localStorage.setItem("token", data?.token);
         localStorage.setItem("balance", data?.user_balance);
-        localStorage.setItem("phone", data?.phone);
+        const fetchUser = () => {
+          console.log("ish boshlandi");
+
+          axios({
+            url: "/api/user-get/",
+            method: "GET",
+            headers: { Authorization: `Token ${token}` }
+          })
+            .then((data) => {
+              console.log("GET-USER RESPONSE:", data);
+              setUser(data); // 🔹 user state’ni yangilash
+              console.log("User ku bu", data);
+              if (data?.status === "success") {
+                notify({ type: "loginSuccses" });
+              }
+              console.log("Serverdan kelgan data:", data);
+              setD(data)
+              localStorage.setItem("token", data?.token);
+              localStorage.setItem("balance", data?.user_balance);
+              localStorage.setItem("status", data?.pay_status);
+            })
+            .catch((err) => {
+              console.error("GET-USER ERROR:", err);
+            });
+        };
         localStorage.setItem("status", data?.pay_status);
         navigate("/profilim");
       })
-      .catch((error) =>{
+      .catch((error) => {
         console.log(error)
-         notify({ type: "loginError"});
-      } 
-    );
+        notify({ type: "loginError" });
+      }
+      );
+
+    axios({
+      url: "/api/user-get/",
+      method: "GET",
+      headers: { Authorization: `Token ${token}` }
+    })
+      .then((data) => {
+        console.log("GET-USER RESPONSE:", data);
+        setUser(data); // 🔹 user state’ni yangilash
+        console.log("User ku bu", data);
+        if (data?.status === "success") {
+          notify({ type: "loginSuccses" });
+        }
+        console.log("Serverdan kelgan data:", data);
+        setD(data)
+        localStorage.setItem("token", data?.token);
+        localStorage.setItem("balance", data?.user_balance);
+        localStorage.setItem("phone", data.phone_number);
+        localStorage.setItem("status", data?.pay_status);
+      })
+      .catch((err) => {
+        console.error("GET-USER ERROR:", err);
+      });
   };
 
   return (
@@ -112,13 +159,13 @@ const LoginPage = () => {
               <UserOutlined className="text-blue-600 text-2xl" />
             </div>
             <h1 className="text-2xl font-bold text-gray-800">Tizimga kirish</h1>
-            <p className="text-gray-500 mt-2 w-[60%] mx-auto">               
+            <p className="text-gray-500 mt-2 w-[60%] mx-auto">
               <a
-              href="https://t.me/robologinbot"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block text-blue-600 border border-blue-600 px-1 py-1 rounded-md mt-4 hover:bg-blue-50 transition"
-            >@robologinbot</a> Telegram botiga kiring va 1 daqiqalik kodingizni oling.</p>
+                href="https://t.me/robologinbot"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-blue-600 border border-blue-600 px-1 py-1 rounded-md mt-4 hover:bg-blue-50 transition"
+              >@robologinbot</a> Telegram botiga kiring va 1 daqiqalik kodingizni oling.</p>
           </div>
 
           <div className=" max-w-xs">
@@ -164,364 +211,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{/* <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-8 flex flex-col items-center justify-center text-center rounded-t-3xl md:rounded-l-none md:rounded-r-3xl">
-  <div className="mb-8">
-    <h1 className="text-2xl font-bold text-white mb-4">
-      MyRoboga Kirish
-    </h1>
-    <p className="text-blue-100 mb-6">
-      Tasdiqlash kodini olish uchun kiring:
-    </p>
-    <a
-      href={telegramLink}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-block bg-white text-blue-600 font-medium py-3 px-6 rounded-lg hover:bg-blue-50 transition duration-200"
-    >
-      @robologinbot
-    </a>
-  </div>
-
-  <div className="mt-6 text-blue-200 text-sm">
-    <p>Agar sizda akkaunt bo'lmasa, bot orqali ro'yxatdan o'ting</p>
-  </div>
-</div> */}
-
-
-
-
-
-
-
-
-// import { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { v4 as uuidv4 } from "uuid";
-// import Cookies from "js-cookie";
-// import { useAxios } from "../../hooks";
-// import notificationApi from "../../generic/notificition";
-
-// const RegistrationForm = () => {
-//   const [step, setStep] = useState(1);
-//   const [errors, setErrors] = useState({});
-//   const [mathQuestion, setMathQuestion] = useState({ num1: 0, num2: 0, answer: 0 });
-//   const [formData, setFormData] = useState({
-//     firstName: "",
-//     lastName: "",
-//     phone: "",
-//     password: "",
-//     verificationCode: "",
-//     mathAnswer: "",
-//   });
-
-//   const navigate = useNavigate();
-//   const axios = useAxios();
-//   const notify = notificationApi();
-
-//   // Get or Set UUID
-//   useEffect(() => {
-//     const existingUUID = Cookies.get("my_uuid");
-//     if (!existingUUID) {
-//       const newUUID = uuidv4();
-//       Cookies.set("my_uuid", newUUID, { expires: 365 });
-//       console.log("New UUID:", newUUID);
-//     } else {
-//       console.log("Existing UUID:", existingUUID);
-//     }
-//   }, []);
-
-//   const uuid = Cookies.get("my_uuid");
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData((prev) => ({
-//       ...prev,
-//       [name]: value,
-//     }));
-//   };
-
-//   useEffect(() => {
-//     generateMathQuestion();
-//   }, []);
-
-//   const generateMathQuestion = () => {
-//     const num1 = Math.floor(Math.random() * 10) + 1; // 1 dan 10 gacha
-//     const num2 = Math.floor(Math.random() * 10) + 1;
-//     setMathQuestion({
-//       num1,
-//       num2,
-//       answer: num1 * num2, // ko‘paytirish, istasangiz qo‘shish ham bo‘lishi mumkin
-//     });
-//   };
-
-//   const validateStep1 = () => {
-//     const newErrors = {};
-//     if (!formData.firstName.trim()) newErrors.firstName = "Ism kiritilmadi";
-//     if (!formData.lastName.trim()) newErrors.lastName = "Familiya kiritilmadi";
-//     if (!formData.phone.trim()) newErrors.phone = "Telefon raqami kiritilmadi";
-//     if (!formData.password) newErrors.password = "Parol kiritilmadi";
-//     if (parseInt(formData.mathAnswer) !== mathQuestion.answer) { newErrors.mathAnswer = "Noto'g'ri javob"; }
-//     setErrors(newErrors);
-//     return Object.keys(newErrors).length === 0;
-//   };
-
-//   const handleSubmitStep1 = async (e) => {
-//     // e.preventDefault();
-//     // if (!validateStep1()) return;
-
-//     // try {
-//     //   const response = await axios({
-//     //     url: "/register/",
-//     //     method: "POST",
-//     //     data: {
-//     //       first_name: formData.firstName,
-//     //       last_name: formData.lastName,
-//     //       phone: formData.phone,
-//     //       password: formData.password,
-//     //       uuid,
-//     //     },
-//     //   });
-
-//     //   if (response?.status === "success") {
-//     //     notify({ type: "success", text: "Kod yuborildi" });
-//     //     setStep(2);
-//     //   } else {
-//     //     notify({ type: "error", text: "Ro'yxatdan o'tishda xatolik" });
-//     //   }
-//     // } catch (err) {
-//     //   console.error(err);
-//     //   notify({ type: "error", text: "Server xatosi" });
-//     // }
-//     if (!validateStep1()) return;
-//     setStep(2)
-//   };
-
-
-//   const handleSubmitStep2 = async (e) => {
-//     e.preventDefault();
-//     if (!formData.verificationCode) {
-//       setErrors({ verificationCode: "Tasdiqlash kodi kiritilmadi" });
-//       return;
-//     }
-
-//     try {
-//       const response = await axios({
-//         url: "/verify_code/",
-//         method: "POST",
-//         data: {
-//           code: formData.verificationCode,
-//           uuid,
-//         },
-//       });
-
-//       if (response?.status === "success") {
-//         notify({ type: "loginSuccses" });
-//         localStorage.setItem("token", response?.token);
-//         localStorage.setItem("balance", response?.user_balance);
-//         localStorage.setItem("phone", response?.phone);
-//         navigate("/");
-//       } else {
-//         notify({ type: "error", text: "Kod noto'g'ri" });
-//       }
-//     } catch (err) {
-//       console.error(err);
-//       notify({ type: "error", text: "Server xatosi" });
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-//       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
-//         {step == 1 ? (
-//           <>
-//             <h1 className="text-2xl font-bold text-center mb-6">Ro'yxatdan o'tish</h1>
-//             <div>
-//               <div className="mb-4">
-//                 <label className="block text-gray-700 mb-2" htmlFor="firstName">Ism</label>
-//                 <input
-//                   type="text"
-//                   id="firstName"
-//                   name="firstName"
-//                   value={formData.firstName}
-//                   onChange={handleChange}
-//                   className={`w-full px-3 py-2 border rounded-md ${errors.firstName ? 'border-red-500' : 'border-gray-300'}`}
-//                 />
-//                 {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
-//               </div>
-
-//               <div className="mb-4">
-//                 <label className="block text-gray-700 mb-2" htmlFor="lastName">Familiya</label>
-//                 <input
-//                   type="text"
-//                   id="lastName"
-//                   name="lastName"
-//                   value={formData.lastName}
-//                   onChange={handleChange}
-//                   className={`w-full px-3 py-2 border rounded-md ${errors.lastName ? 'border-red-500' : 'border-gray-300'}`}
-//                 />
-//                 {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
-//               </div>
-
-//               <div className="mb-4">
-//                 <label className="block text-gray-700 mb-2" htmlFor="phone">Telefon raqami</label>
-//                 <div className="flex">
-//                   <span className="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 bg-gray-50 text-gray-500 rounded-l-md">
-//                     +998
-//                   </span>
-//                   <input
-//                     type="tel"
-//                     id="phone"
-//                     name="phone"
-//                     value={formData.phone}
-//                     onChange={handleChange}
-//                     placeholder="9x600007"
-//                     className={`flex-1 px-3 py-2 border rounded-r-md ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
-//                   />
-//                 </div>
-//                 {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-//               </div>
-
-//               <div className="mb-4">
-//                 <label className="block text-gray-700 mb-2" htmlFor="password">Parol</label>
-//                 <input
-//                   type="password"
-//                   id="password"
-//                   name="password"
-//                   value={formData.password}
-//                   onChange={handleChange}
-//                   className={`w-full px-3 py-2 border rounded-md ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
-//                 />
-//                 {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
-//               </div>
-
-//               <div className="mb-6">
-//                 <label className="block text-gray-700 mb-2">
-//                   {mathQuestion.num1} x {mathQuestion.num2} = ?
-//                 </label>
-//                 <input
-//                   type="text"
-//                   name="mathAnswer"
-//                   value={formData.mathAnswer}
-//                   onChange={handleChange}
-//                   className={`w-full px-3 py-2 border rounded-md ${errors.mathAnswer ? 'border-red-500' : 'border-gray-300'
-//                     }`}
-//                 />
-//                 {errors.mathAnswer && (
-//                   <p className="text-red-500 text-sm mt-1">{errors.mathAnswer}</p>
-//                 )}
-//               </div>
-
-//               <button
-//                 onClick={handleSubmitStep1}
-//                 type="submit"
-//                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200"
-//               >
-//                 Ro'yxatdan o'tish
-//               </button>
-//             </div>
-
-//             <div className="mt-6 text-center">
-//               <p className="text-gray-600">
-//                 Akkauntingiz bormi?
-//                 <button
-//                   onClick={() => setStep(2)}
-//                   className="text-blue-600 ml-1 underline"
-//                 >
-//                   Kirish
-//                 </button>
-//               </p>
-//             </div>
-//           </>
-//         ) : (
-//           <>
-//             <div className="flex items-center mb-6 justify-between">
-//               <div className="flex-1">
-//                 <button
-//                   onClick={() => setStep(1)}
-//                   className="border border-blue-600 text-blue-600 px-4 py-1 rounded-md hover:bg-blue-100 transition"
-//                 >
-//                   ← Orqaga
-//                 </button>
-//               </div>
-//               <h1 className="flex-1 text-center text-2xl font-semibold text-gray-800">Tasdiqlash</h1>
-//               <div className="flex-1"></div>
-//             </div>
-
-//             <div className="bg-white p-6 rounded-lg shadow-md">
-//               <label htmlFor="verificationCode" className="block text-gray-700 text-sm mb-2">
-//                 Tasdiqlash kodingizni kiriting
-//               </label>
-//               <input
-//                 type="text"
-//                 id="verificationCode"
-//                 name="verificationCode"
-//                 value={formData.verificationCode}
-//                 onChange={handleChange}
-//                 className={`w-full px-4 py-2 border rounded-md text-gray-800 outline-none focus:ring-2 focus:ring-blue-500 ${errors.verificationCode ? "border-red-500" : "border-gray-300"
-//                   }`}
-//               />
-//               {errors.verificationCode && (
-//                 <p className="text-red-500 text-sm mt-1">{errors.verificationCode}</p>
-//               )}
-
-//               <button
-//                 onClick={handleSubmitStep2}
-//                 type="submit"
-//                 className="mt-4 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
-//               >
-//                 Tasdiqlash
-//               </button>
-
-//             </div>
-
-//             <div className="mt-6 text-center">
-//               <a
-//                 href="https://t.me/robologinbot"
-//                 target="_blank"
-//                 rel="noopener noreferrer"
-//                 className="inline-block text-blue-600 border border-blue-600 px-4 py-2 rounded-md mt-4 hover:bg-blue-50 transition"
-//               >
-//                 Tasdiqlash ko'dinini Telegram orqali oling
-//               </a>
-//             </div>
-//           </>
-
-//         )}
-
-//         <div className="mt-8 pt-4 border-t border-gray-200">
-//           <p className="text-gray-600 text-center">
-//             Yordam kerakmi?
-//             <span className="font-semibold"> Call center: +998123456789</span>
-//           </p>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default RegistrationForm;

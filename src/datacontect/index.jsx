@@ -16,25 +16,25 @@ export const DataProvider = ({ children }) => {
 
   // Initial user state
   const [user, setUser] = useState({
-    name: "Umid",
-    phone: "+998950934060",
-    balans: 50000,
-    surname: "",
-    level: 12,
-    bought: [
-      {
-        "id": 1,
-        "username": "Madaminov Salohiddin",
-        "job": "python, mobile application",
-        "about": "anything",
-        "direction": "python, mobile application",
-        "experience": "4",
-        "work_place": "Infinite Co",
-        "img": "/media/user/Otabek-Nurmatov.webp",
-        "slug": "madaminov-salohiddin"
-      },
-    ],
-    proccess: 0, // Profil to'ldirilganlik foizi uchun key
+    // name: "Umid",
+    // phone: "+998950934060",
+    // balans: 50000,
+    // surname: "",
+    // level: 12,
+    // bought: [
+    //   {
+    //     "id": 1,
+    //     "username": "Madaminov Salohiddin",
+    //     "job": "python, mobile application",
+    //     "about": "anything",
+    //     "direction": "python, mobile application",
+    //     "experience": "4",
+    //     "work_place": "Infinite Co",
+    //     "img": "/media/user/Otabek-Nurmatov.webp",
+    //     "slug": "madaminov-salohiddin"
+    //   },
+    // ],
+    // proccess: 0, // Profil to'ldirilganlik foizi uchun key
   });
 
   // User malumotlarini localStorage-ga yozish
@@ -70,29 +70,29 @@ export const DataProvider = ({ children }) => {
   }, [user.name, user.surname, user.phone, user.balans, user.level]);
 
   // Kurs progressini hisoblash va progress state ga yozish
-  useEffect(() => {
-    if (courseData.length > 0 && user.bought.length > 0) {
-      const boughtCourseIds = user.bought
-        .filter(item => item.status === "bought")
-        .map(item => item.id);
+  // useEffect(() => {
+  //   if (courseData.length > 0 && user.bought.length > 0) {
+  //     const boughtCourseIds = user.bought
+  //       .filter(item => item.status === "bought")
+  //       .map(item => item.id);
 
-      const relevantLessons = courseData.filter(lesson =>
-        boughtCourseIds.includes(lesson.courseId)
-      );
+  //     const relevantLessons = courseData.filter(lesson =>
+  //       boughtCourseIds.includes(lesson.courseId)
+  //     );
 
-      if (relevantLessons.length === 0) {
-        setProgress(0);
-        return;
-      }
+  //     if (relevantLessons.length === 0) {
+  //       setProgress(0);
+  //       return;
+  //     }
 
-      const completedLessons = relevantLessons.filter(lesson => lesson.completed).length;
-      const percent = Math.round((completedLessons / relevantLessons.length) * 100);
+  //     const completedLessons = relevantLessons.filter(lesson => lesson.completed).length;
+  //     const percent = Math.round((completedLessons / relevantLessons.length) * 100);
 
-      setProgress(percent);
-    } else {
-      setProgress(0);
-    }
-  }, [courseData, user.bought]);
+  //     setProgress(percent);
+  //   } else {
+  //     setProgress(0);
+  //   }
+  // }, [courseData, user.bought]);
 
   return (
     <DataContext.Provider

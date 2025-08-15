@@ -36,7 +36,11 @@ const FrontendCourse = () => {
 
   const { data } = useData();
   const location = useLocation();
-  const { id } = location?.state;
+const id = location?.state?.id;
+
+
+
+
   const findData = data.find((item) => item?.id === id);
   console.log(data);
   console.log("kerakli", findData.lesson_bigs[1].lessons[0].lessons[0].status);
@@ -216,7 +220,7 @@ const FrontendCourse = () => {
             {selectedSubLesson ? (
               <>
                 <Card title={selectedSubLesson.title} className="mb-6 shadow">
-                    {/* {selectedSubLesson.video_url ? (
+                  {/* {selectedSubLesson.video_url ? (
                       <ReactPlayer
                         url={selectedSubLesson.video_url}
                         width="100%"
@@ -228,16 +232,16 @@ const FrontendCourse = () => {
                         <PlayCircleFilled className="text-5xl text-blue-500" />
                       </div>
                     )} */}
-                    {selectedSubLesson.video_url && (
-                      <div className="aspect-w-16 aspect-h-9 mb-4 w-full h-[600px] max-sm:h-[196px]">
-                        <ReactPlayer
-                          url={selectedSubLesson.video_url}
-                          width="100%"
-                          height="100%"
-                          controls
-                        />
-                      </div>
-                    )}
+                  {selectedSubLesson.video_url && (
+                    <div className="aspect-w-16 aspect-h-9 mb-4 w-full h-[600px] max-sm:h-[196px]">
+                      <ReactPlayer
+                        url={selectedSubLesson.video_url}
+                        width="100%"
+                        height="100%"
+                        controls
+                      />
+                    </div>
+                  )}
 
                   {/* Dars boyicha */}
                   <div className="prose max-w-none">

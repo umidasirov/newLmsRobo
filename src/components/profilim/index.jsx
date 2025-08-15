@@ -3,47 +3,85 @@ import { useData } from "../../datacontect";
 import { Link, useNavigate } from "react-router-dom";
 import { useAxios } from "../../hooks";
 import { EditOutlined } from "@ant-design/icons";
-import Reception from "../reception/index"; // reception joylashgan joyi
+import Reception from "../reception/index";
+import KirishComponents from "../kirish";
 
 const Profilim = () => {
   const navigate = useNavigate();
   const context = useData();
+
   if (!context) {
     return <div>Loading...</div>;
   }
+
   const {
     user,
+    setUser, // 🔹 context ichida bo‘lishi kerak
     data,
     setTeacherData,
-    teacherData,
     setCourseData,
     courseData,
     showProfileForm,
     setShowProfileForm,
-    n,
-    progress,
+    n
   } = context;
+
+
+  const pId = (id) => {
+    const chioseData = data.find((item) => item?.id === id);
+    alert(id)
+    navigate(`/kirish2/`, { state: { id: id } });
+  };
 
   const axios = useAxios();
   const url = "https://api.myrobo.uz";
   const token = localStorage.getItem("token");
 
+  // 🔹 get-user zaprosini 3 sek.da yuborish va user state’ni yangilash
   useEffect(() => {
-    user.proccess = n;
+    if (!token) return;
+
+    const fetchUser = () => {
+      console.log("ish boshlandi");
+
+      axios({
+        url: "/api/user-get/",
+        method: "GET",
+        headers: { Authorization: `Token ${token}` }
+      })
+        .then((res) => {
+          console.log("GET-USER RESPONSE:", res);
+          setUser(res); // 🔹 user state’ni yangilash
+        })
+        .catch((err) => {
+          console.error("GET-USER ERROR:", err);
+        });
+    };
+
+    fetchUser(); // birinchi chaqirish  
+    const interval = setInterval(fetchUser, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (!token) return;
     axios({ url: "/api/teacher/", method: "GET" })
-      .then((data) => setTeacherData(data))
+      .then((data) => {
+        setTeacherData(data)
+        console.log("GET-USER RESPONSE:", res);
+      })
       .catch((error) => console.log(error));
-  }, [axios, setTeacherData]);
+  }, [axios, setTeacherData, token]);
 
   useEffect(() => {
     axios({ url: "/api/courses/", method: "GET" })
       .then((data) => setCourseData(data))
       .catch((error) => console.log(error));
-  }, [axios, setCourseData]);
+  }, []);
 
   const postId = (id) => {
     const chioseData = data.find((item) => item?.id === id);
-
     if (!token) {
       navigate(`/kirish2/`, { state: { id } });
     } else {
@@ -51,12 +89,25 @@ const Profilim = () => {
     }
   };
 
+  const goMentor = (slug) => {
+    navigate(`/team2/`, { state: { name: slug } });
+  };
+
+
+  console.log(courseData, "courseData");
+  const uniqueMentors = Array.from(
+    new Map(user.user_mentors.map(m => [m.id, m])).values()
+  );
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row p-4 md:p-8 text-gray-800 gap-6">
       {/* Sidebar */}
       <aside className="w-full md:w-1/4 bg-white p-6 rounded-xl shadow flex flex-col items-center text-center">
         <h1 className="text-2xl font-bold mb-2">
-          Salom, <span className="text-blue-500">{user.name}</span>
+          Salom,{" "}
+          <span className="text-blue-500">
+            {user?.name || "Foydalanuvchi"}
+          </span>
         </h1>
         <p className="text-sm text-gray-500 mb-6">
           Boshqaruv paneliga xush kelibsiz
@@ -74,12 +125,12 @@ const Profilim = () => {
         <div className="w-full mt-6">
           <div className="flex justify-between text-sm mb-1">
             <span>Profil to‘ldirilganlik darajasi</span>
-            <span>{user.proccess ?? 0}%</span>
+            <span>{user?.proccess ?? 0}%</span>
           </div>
           <div className="w-full h-2 bg-blue-100 rounded overflow-hidden">
             <div
               className="h-2 bg-blue-500 rounded transition-all duration-500"
-              style={{ width: `${user.proccess ?? 0}%` }}
+              style={{ width: `${user?.proccess ?? 0}%` }}
             ></div>
           </div>
         </div>
@@ -93,53 +144,51 @@ const Profilim = () => {
         <section>
           <h2 className="text-2xl font-semibold mb-4">Mening kurslarim</h2>
           <div className="flex flex-wrap gap-6 justify-center md:justify-start">
-            {user.bought.map((e) => (
-              <Link
-                to="/team2"
-                state={{ name: e.slug }}
-                key={e.slug}
-                className="block w-full max-w-xs md:w-[300px]"
-              >
-                <div className="bg-white shadow-md hover:shadow-xl rounded-xl overflow-hidden border p-4 transition-all">
-                  <img
-                    src={url + e.img}
-                    alt={e.username}
-                    className="w-full h-48 object-cover rounded-xl mb-4"
-                  />
-                  <div className="font-semibold text-lg">{e.username}</div>
-                  <div className="text-sm text-gray-500">{e.job}</div>
-                </div>
-              </Link>
-            ))}
+            <KirishComponents center={false} sort={true} />
           </div>
         </section>
+        {/* Mening mentorlarim */}
+        <section className="mt-12">
+          <h2 className="text-2xl font-semibold mb-4">Mening mentorlarim</h2>
+          <div className="flex flex-wrap gap-6 justify-center md:justify-start">
+            {uniqueMentors.length > 0 ? (
+              uniqueMentors.map((mentor) => (
+                <div
+                  key={mentor.id}
+                  onClick={() => navigate(`/team2`, { state: { name: mentor.slug } })}
+                  className="cursor-pointer block w-full max-w-xs md:w-[300px]"
+                >
+                  <div className="bg-white shadow-md hover:shadow-xl rounded-xl overflow-hidden border p-4 transition-all">
+                    <img
+                      src={`${url}${mentor.img}`}
+                      alt={mentor.ism}
+                      className="w-full h-48 object-cover rounded-xl mb-4"
+                    />
+                    <div className="font-semibold text-lg">{mentor.ism}</div>
+                    <div className="text-sm text-gray-500">{mentor.job}</div>
+                    <div className="text-sm text-gray-400">{mentor.direction}</div>
+                    <div className="mt-2 text-xs text-gray-500">
+                      Tajriba: {mentor.experience} yil
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Ish joyi: {mentor.work_place}
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500">Sizda hali mentorlar yo‘q</p>
+            )}
+
+          </div>
+        </section>
+
 
         {/* Mashxur kurslar */}
         <section className="mt-12">
           <h2 className="text-2xl font-semibold mb-4">Mashxur kurslar</h2>
           <div className="flex flex-wrap gap-6 justify-center md:justify-start">
-            {courseData?.map((course) => (
-              <div
-                key={course.slug}
-                className="bg-white w-full max-w-xs md:w-[300px] shadow-md hover:shadow-xl rounded-xl overflow-hidden border p-4"
-              >
-                <img
-                  src={course.img}
-                  alt={course.title}
-                  className="w-full h-48 object-cover rounded-xl mb-4"
-                />
-                <div className="font-semibold text-lg h-[60px]">{course.title}</div>
-                <div className="text-sm text-gray-600">Narxi: {course.price} so‘m</div>
-                <div className="mt-3">
-                  <button
-                    onClick={() => postId(course.id)}
-                    className="border border-gray-500 px-3 py-1 rounded hover:bg-gray-100 w-full"
-                  >
-                    Batafsil
-                  </button>
-                </div>
-              </div>
-            ))}
+            <KirishComponents center={false} />
           </div>
         </section>
       </main>

@@ -93,7 +93,7 @@ export const useAxios = () => {
       };
 
       if (auth && token) {
-        defaultHeaders.Authorization = `Bearer ${token}`;
+        defaultHeaders.Authorization = `Token ${token}`;
       }
 
       const res = await axios({
