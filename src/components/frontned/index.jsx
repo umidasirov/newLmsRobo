@@ -1,50 +1,31 @@
 import React, { useState } from "react";
-import { Card, Divider, Button } from "antd";
+import { Card, Button } from "antd";
 import {
   PlayCircleFilled,
   BookFilled,
   CheckCircleFilled,
+  MenuOutlined,
 } from "@ant-design/icons";
 import ReactPlayer from "react-player";
 import { useData } from "../../datacontect";
 import { useLocation } from "react-router-dom";
-import Editor from "@monaco-editor/react";
-import PistonCompiler from "../compiler";
 import CodeSubmitter from "../compiler";
+import Confetti from "react-confetti";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
+
 const FrontendCourse = () => {
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [selectedSubLesson, setSelectedSubLesson] = useState(null);
-  const [expandedItems, setExpandedItems] = useState({
-    section: null,
-    lesson: null,
-  });
-
-
-  const [code, setCode] = useState("# Kodni shu yerga yozing");
-  const [output, setOutput] = useState("");
-
-  const handleRun = () => {
-    try {
-      const result = eval(code);
-      setOutput(result !== undefined ? String(result) : "✅ Kod bajarildi");
-    } catch (err) {
-      setOutput("❌ Xatolik: " + err.message);
-    }
-  };
-
+  const [expandedItems, setExpandedItems] = useState({ section: null, lesson: null });
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const { data } = useData();
   const location = useLocation();
-const id = location?.state?.id;
-
-
-
-
+  const id = location?.state?.id;
   const findData = data.find((item) => item?.id === id);
-  console.log(data);
-  console.log("kerakli", findData.lesson_bigs[1].lessons[0].lessons[0].status);
-  console.log("kerakli", findData);
 
   const handleSectionClick = (section) => {
     setExpandedItems((prev) => ({
@@ -54,18 +35,10 @@ const id = location?.state?.id;
 
     if (expandedItems.section !== section.id) {
       setSelectedSection(section);
-      if (section.lessons && section.lessons.length > 0) {
+      if (section.lessons?.length > 0) {
         const firstLesson = section.lessons[0];
         setSelectedLesson(firstLesson);
-
-        if (firstLesson.lessons && firstLesson.lessons.length > 0) {
-          setSelectedSubLesson(firstLesson.lessons[0]);
-        } else {
-          setSelectedSubLesson(null);
-        }
-      } else {
-        setSelectedLesson(null);
-        setSelectedSubLesson(null);
+        setSelectedSubLesson(firstLesson.lessons?.[0] || null);
       }
     }
   };
@@ -75,257 +48,197 @@ const id = location?.state?.id;
       ...prev,
       lesson: prev.lesson === lesson.id ? null : lesson.id,
     }));
-
     if (expandedItems.lesson !== lesson.id) {
       setSelectedLesson(lesson);
-      if (lesson.lessons && lesson.lessons.length > 0) {
-        setSelectedSubLesson(lesson.lessons[0]);
-      } else {
-        setSelectedSubLesson(null);
-      }
+      setSelectedSubLesson(lesson.lessons?.[0] || null);
     }
-  };
-
-  const handleSubLessonSelect = (subLesson) => {
-    setSelectedSubLesson(subLesson);
   };
 
   const goToNextLesson = () => {
     if (!selectedSection || !selectedLesson || !selectedSubLesson) return;
 
-    const currentLessons = selectedSection.lessons;
-    const currentLessonIndex = currentLessons.findIndex(
-      (lesson) => lesson.id === selectedLesson.id
-    );
+    const lessons = selectedSection.lessons;
+    const lessonIndex = lessons.findIndex((l) => l.id === selectedLesson.id);
+    const subLessons = selectedLesson.lessons;
+    const subIndex = subLessons.findIndex((s) => s.id === selectedSubLesson.id);
 
-    const currentSubLessons = selectedLesson.lessons;
-    const currentSubLessonIndex = currentSubLessons.findIndex(
-      (subLesson) => subLesson.id === selectedSubLesson.id
-    );
-
-    if (currentSubLessonIndex < currentSubLessons.length - 1) {
-      setSelectedSubLesson(currentSubLessons[currentSubLessonIndex + 1]);
-    } else if (currentLessonIndex < currentLessons.length - 1) {
-      const nextLesson = currentLessons[currentLessonIndex + 1];
+    if (subIndex < subLessons.length - 1) {
+      setSelectedSubLesson(subLessons[subIndex + 1]);
+    } else if (lessonIndex < lessons.length - 1) {
+      const nextLesson = lessons[lessonIndex + 1];
       setSelectedLesson(nextLesson);
-      setExpandedItems((prev) => ({
-        ...prev,
-        lesson: nextLesson.id,
-      }));
-
-      if (nextLesson.lessons[0]) {
-        setSelectedSubLesson(nextLesson.lessons[0]);
-      }
+      setExpandedItems((p) => ({ ...p, lesson: nextLesson.id }));
+      setSelectedSubLesson(nextLesson.lessons?.[0] || null);
+    } else {
+      toast.success("🎉 Tabriklaymiz! Kursni tugatdingiz!");
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 5000);
     }
   };
 
   const goToPrevLesson = () => {
     if (!selectedSection || !selectedLesson || !selectedSubLesson) return;
 
-    const currentLessons = selectedSection.lessons;
-    const currentLessonIndex = currentLessons.findIndex(
-      (lesson) => lesson.id === selectedLesson.id
-    );
+    const lessons = selectedSection.lessons;
+    const lessonIndex = lessons.findIndex((l) => l.id === selectedLesson.id);
+    const subLessons = selectedLesson.lessons;
+    const subIndex = subLessons.findIndex((s) => s.id === selectedSubLesson.id);
 
-    const currentSubLessons = selectedLesson.lessons;
-    const currentSubLessonIndex = currentSubLessons.findIndex(
-      (subLesson) => subLesson.id === selectedSubLesson.id
-    );
-
-    if (currentSubLessonIndex > 0) {
-      setSelectedSubLesson(currentSubLessons[currentSubLessonIndex - 1]);
-    } else if (currentLessonIndex > 0) {
-      const prevLesson = currentLessons[currentLessonIndex - 1];
+    if (subIndex > 0) {
+      setSelectedSubLesson(subLessons[subIndex - 1]);
+    } else if (lessonIndex > 0) {
+      const prevLesson = lessons[lessonIndex - 1];
       setSelectedLesson(prevLesson);
-      setExpandedItems((prev) => ({
-        ...prev,
-        lesson: prevLesson.id,
-      }));
-
-      if (prevLesson.lessons.length > 0) {
-        setSelectedSubLesson(prevLesson.lessons[prevLesson.lessons.length - 1]);
-      }
+      setExpandedItems((p) => ({ ...p, lesson: prevLesson.id }));
+      setSelectedSubLesson(prevLesson.lessons[prevLesson.lessons.length - 1]);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 max-sm:p-2 pt-0 w-[100%]">
-      <div className="mx-auto w-[100%]">
-        <div className="text-center mb-8">
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 p-4 relative">
+      {showConfetti && <Confetti />}
 
-        <div className="flex flex-col lg:flex-row gap-6 w-[100%]">
-          <div className="w-full lg:w-2/6 bg-white p-4 rounded-lg shadow max-sm:p-2">
-            <h1 className="text-3xl font-bold text-gray-800">
-              {findData?.title || "Frontend Dasturlash Kursi"}
-            </h1>
-            <div className="space-y-2">
+      {/* Hamburger Button (Mobile) */}
+      <Button
+        className="lg:hidden mb-4"
+        icon={<MenuOutlined />}
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      />
+
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Sidebar */}
+        <AnimatePresence>
+          {sidebarOpen && (
+            <motion.div
+              initial={{ x: -300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -300, opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="w-full lg:w-2/6 bg-white p-4 rounded-xl shadow-xl overflow-y-auto max-h-[90vh]"
+            >
+              <h1 className="text-2xl font-bold mb-4 text-center text-blue-600">
+                {findData?.title || "Frontend Kursi"}
+              </h1>
+
               {findData?.lesson_bigs?.map((section) => (
-                <div key={section.id} className="border-b">
+                <div key={section.id} className="mb-2">
                   <div
-                    className={`flex border-b border-r items-center p-2 hover:bg-blue-50 rounded cursor-pointer ${selectedSection?.id === section.id
-                      ? "bg-blue-100 font-medium"
-                      : ""
-                      }`}
+                    className={`p-3 rounded-lg flex items-center gap-2 cursor-pointer transition-all duration-300 ${
+                      selectedSection?.id === section.id
+                        ? "bg-indigo-100 text-blue-700"
+                        : "hover:bg-indigo-50"
+                    }`}
                     onClick={() => handleSectionClick(section)}
                   >
-                    <PlayCircleFilled className="text-blue-500 mr-2" />
-                    <span className='text-[16px]'>{section.title}</span>
+                    <PlayCircleFilled className="text-blue-500" />
+                    <span>{section.title}</span>
                   </div>
 
-                  {expandedItems.section === section.id && (
-                    <div className="ml-6 space-y-1">
-                      {section.lessons.map((lesson) => (
-                        <div key={lesson.id}>
+                  <AnimatePresence>
+                    {expandedItems.section === section.id && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="ml-4 mt-2"
+                      >
+                        {section.lessons?.map((lesson) => (
                           <div
-                            className={`flex items-center p-2 hover:bg-blue-50 rounded cursor-pointer ${selectedLesson?.id === lesson.id
-                              ? "bg-blue-200 font-medium"
-                              : ""
-                              }`}
+                            key={lesson.id}
                             onClick={() => handleLessonClick(lesson)}
+                            className={`p-2 rounded-md cursor-pointer flex justify-between items-center ${
+                              selectedLesson?.id === lesson.id
+                                ? "bg-blue-100"
+                                : "hover:bg-blue-50"
+                            }`}
                           >
-                            <span className="text-sm text-[17px] max-sm:text-[10px]">{lesson.title}</span>
-                          </div>
-
-                          {expandedItems.lesson === lesson.id && (
-                            <div className="ml-4 space-y-1 hover:bg-blue-50">
-                              {/* {lesson.lessons.map((subLesson) => (
-                                <div
-                                  key={subLesson.id}
-                                  className={`flex items-center p-2 hover:bg-blue-50 rounded cursor-pointer ${selectedSubLesson?.id === subLesson.id
-                                    ? "bg-blue-300 font-medium"
-                                    : ""
-                                    }`}
-                                  onClick={() =>
-                                    handleSubLessonSelect(subLesson)
-                                  }
-                                >
-                                  <span className="text-xs">
-                                    {subLesson.title}
-                                  </span>
-                                </div>
-                              ))} */}
+                            <span>{lesson.title}</span>
+                            <div className="w-14 h-2 bg-gray-200 rounded-full overflow-hidden">
+                              <div
+                                className="bg-green-500 h-2"
+                                style={{ width: `${lesson.progress || 0}%` }}
+                              />
                             </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="w-full lg:w-5/6">
-            {selectedSubLesson ? (
-              <>
-                <Card title={selectedSubLesson.title} className="mb-6 shadow">
-                  {/* {selectedSubLesson.video_url ? (
-                      <ReactPlayer
-                        url={selectedSubLesson.video_url}
-                        width="100%"
-                        height="100%"
-                        controls
-                      />
-                    ) : (
-                      <div className="bg-gray-200 w-full h-full flex items-center justify-center rounded">
-                        <PlayCircleFilled className="text-5xl text-blue-500" />
-                      </div>
-                    )} */}
-                  {selectedSubLesson.video_url && (
-                    <div className="aspect-w-16 aspect-h-9 mb-4 w-full h-[600px] max-sm:h-[196px]">
-                      <ReactPlayer
-                        url={selectedSubLesson.video_url}
-                        width="100%"
-                        height="100%"
-                        controls
-                      />
-                    </div>
-                  )}
-
-                  {/* Dars boyicha */}
-                  <div className="prose max-w-none">
-                    <p className="mb-4">{selectedSubLesson.description}</p>
-                    <br />
-                    {selectedSubLesson.lesson_content?.length > 0 && (
-                      <div className="mt-4">
-                        <h3 className="font-bold text-lg mb-2">
-                          Dars tarkibi:
-                        </h3>
-                        {selectedSubLesson.lesson_content.map((content) => (
-                          <div key={content.id} className="mb-4">
-                            <h4 className="font-semibold">{content.title}</h4>
-                            {content.lesson_sentence.map((sentence) => (
-                              <div key={sentence.id} className="ml-2 mb-2">
-                                <p className="font-medium">{sentence.title}</p>
-                                <p>{sentence.about}</p>
-                              </div>
-                            ))}
                           </div>
                         ))}
-                      </div>
+                      </motion.div>
                     )}
-                    {/* compiler */}
-                    {selectedSubLesson.status !== "content" && (
-                      <div className="p-2 border border-gray-200 rounded">
-                        <CodeSubmitter id={id} />
+                  </AnimatePresence>
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Main Content */}
+        <div className="w-full lg:w-4/6">
+          {selectedSubLesson ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              key={selectedSubLesson.id}
+            >
+              <Card
+                title={selectedSubLesson.title}
+                className="shadow-lg rounded-xl overflow-hidden"
+              >
+                {selectedSubLesson.video_url && (
+                  <div className="mb-4 rounded-lg overflow-hidden">
+                    <ReactPlayer
+                      url={selectedSubLesson.video_url}
+                      width="100%"
+                      height="400px"
+                      controls
+                    />
+                  </div>
+                )}
+
+                <p className="mb-4">{selectedSubLesson.description}</p>
+
+                {selectedSubLesson.lesson_content?.map((content) => (
+                  <div key={content.id} className="mb-4">
+                    <h4 className="font-semibold">{content.title}</h4>
+                    {content.lesson_sentence?.map((s) => (
+                      <div key={s.id} className="ml-2 mb-2">
+                        <p className="font-medium">{s.title}</p>
+                        <p>{s.about}</p>
                       </div>
-                    )}
-
+                    ))}
                   </div>
-                </Card>
+                ))}
 
-                <div className="flex justify-between">
-                  <Button
-                    type="primary"
-                    icon={<BookFilled />}
-                    onClick={goToPrevLesson}
-                    disabled={
-                      !selectedSection ||
-                      !selectedLesson ||
-                      !selectedSubLesson ||
-                      (selectedLesson.lessons.findIndex(
-                        (subLesson) => subLesson.id === selectedSubLesson.id
-                      ) === 0 &&
-                        selectedSection.lessons.findIndex(
-                          (lesson) => lesson.id === selectedLesson.id
-                        ) === 0)
-                    }
-                  >
-                    Oldingi dars
-                  </Button>
-                  <div className="space-x-2">
-                    <Button
-                      type="primary"
-                      icon={<CheckCircleFilled />}
-                      onClick={goToNextLesson}
-                      disabled={
-                        !selectedSection ||
-                        !selectedLesson ||
-                        !selectedSubLesson ||
-                        (selectedLesson.lessons.findIndex(
-                          (subLesson) => subLesson.id === selectedSubLesson.id
-                        ) ===
-                          selectedLesson.lessons.length - 1 &&
-                          selectedSection.lessons.findIndex(
-                            (lesson) => lesson.id === selectedLesson.id
-                          ) ===
-                          selectedSection.lessons.length - 1)
-                      }
-                    >
-                      Keyingi dars
-                    </Button>
+                {selectedSubLesson.status !== "content" && (
+                  <div className="border border-gray-200 rounded p-2 mt-4">
+                    <CodeSubmitter id={id} />
                   </div>
-                </div>
-              </>
-            ) : (
-              <Card title="Darsni tanlang" className="mb-6 shadow">
-                <div className="text-center py-8 text-gray-500">
-                  Iltimos, chap menyudan darsni tanlang
-                </div>
+                )}
               </Card>
-            )}
-          </div>
+
+              {/* Navigation */}
+              <div className="flex justify-between mt-4">
+                <Button
+                  type="primary"
+                  icon={<BookFilled />}
+                  onClick={goToPrevLesson}
+                >
+                  Oldingi
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<CheckCircleFilled />}
+                  onClick={goToNextLesson}
+                >
+                  Keyingi
+                </Button>
+              </div>
+            </motion.div>
+          ) : (
+            <Card title="Darsni tanlang" className="shadow-lg">
+              <div className="text-center py-8 text-gray-500">
+                Chap menyudan darsni tanlang 📚
+              </div>
+            </Card>
+          )}
         </div>
       </div>
     </div>
