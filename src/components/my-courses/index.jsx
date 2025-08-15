@@ -8,14 +8,19 @@ function MeningKurslarim() {
   const [activeCard, setActiveCard] = useState(null);
   const axios = useAxios();
   const [data, setData] = useState();
+  const [load, setLoad] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoad(true);
     axios({
       url: "/api/courses/",
       method: "GET",
     })
-      .then((data) => setData(data))
+      .then((data) => {
+        setData(data)
+        setLoad(false);
+      })
       .catch((error) => console.log(error));
   }, []);
 
@@ -31,7 +36,14 @@ function MeningKurslarim() {
   };
 
   const paidCourses = data?.filter((value) => value?.paid === true);
-
+  if (load) {
+    return (
+      <div className="w-full flex flex-col items-center justify-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid mb-4"></div>
+        <span className="text-blue-500 font-semibold">Yuklanmoqda...</span>
+      </div>
+    )
+  }
   return (
     <section className="w-[90%] m-auto max-[768px]:mt-[30px]">
       <div>
