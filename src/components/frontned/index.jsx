@@ -4,7 +4,8 @@ import {
   PlayCircleFilled,
   BookFilled,
   CheckCircleFilled,
-  MenuOutlined,
+  SendOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import ReactPlayer from "react-player";
 import { useData } from "../../datacontect";
@@ -18,8 +19,10 @@ const FrontendCourse = () => {
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [selectedSubLesson, setSelectedSubLesson] = useState(null);
-  const [expandedItems, setExpandedItems] = useState({ section: null, lesson: null });
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [expandedItems, setExpandedItems] = useState({
+    section: null,
+    lesson: null,
+  });
   const [showConfetti, setShowConfetti] = useState(false);
 
   const { data } = useData();
@@ -27,6 +30,26 @@ const FrontendCourse = () => {
   const id = location?.state?.id;
   const findData = data.find((item) => item?.id === id);
 
+  // Notes state
+  const [notes, setNotes] = useState("");
+  const [list, setList] = useState([]);
+
+  const addNote = () => {
+    if (!notes.trim()) {
+      toast.error("❌ Bo‘sh eslatma qo‘shib bo‘lmaydi!");
+      return;
+    }
+    setList((prev) => [...prev, notes]);
+    setNotes("");
+    toast.success("✅ Eslatma qo‘shildi!");
+  };
+
+  const deleteNote = (index) => {
+    setList((prev) => prev.filter((_, i) => i !== index));
+    toast.info("🗑️ Eslatma o‘chirildi!");
+  };
+
+  // Navigation handlers
   const handleSectionClick = (section) => {
     setExpandedItems((prev) => ({
       section: prev.section === section.id ? null : section.id,
@@ -98,80 +121,69 @@ const FrontendCourse = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 p-4 relative">
       {showConfetti && <Confetti />}
 
-      {/* Hamburger Button (Mobile) */}
-      <Button
-        className="lg:hidden mb-4"
-        icon={<MenuOutlined />}
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      />
+      {/* GRID layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Sidebar - 1/4 */}
+        <motion.div
+          initial={{ x: -200, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="bg-white p-4 rounded-xl shadow-xl overflow-y-auto max-h-[85vh]"
+        >
+          <h1 className="text-2xl font-bold mb-4 text-center text-blue-600">
+            {findData?.title || "Frontend Kursi"}
+          </h1>
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar */}
-        <AnimatePresence>
-          {sidebarOpen && (
-            <motion.div
-              initial={{ x: -300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -300, opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              className="w-full lg:w-2/6 bg-white p-4 rounded-xl shadow-xl overflow-y-auto max-h-[90vh]"
-            >
-              <h1 className="text-2xl font-bold mb-4 text-center text-blue-600">
-                {findData?.title || "Frontend Kursi"}
-              </h1>
+          {findData?.lesson_bigs?.map((section) => (
+            <div key={section.id} className="mb-2">
+              <div
+                className={`p-3 rounded-lg flex items-center gap-2 cursor-pointer transition-all duration-300 ${
+                  selectedSection?.id === section.id
+                    ? "bg-indigo-100 text-blue-700"
+                    : "hover:bg-indigo-50"
+                }`}
+                onClick={() => handleSectionClick(section)}
+              >
+                <PlayCircleFilled className="text-blue-500" />
+                <span>{section.title}</span>
+              </div>
 
-              {findData?.lesson_bigs?.map((section) => (
-                <div key={section.id} className="mb-2">
-                  <div
-                    className={`p-3 rounded-lg flex items-center gap-2 cursor-pointer transition-all duration-300 ${
-                      selectedSection?.id === section.id
-                        ? "bg-indigo-100 text-blue-700"
-                        : "hover:bg-indigo-50"
-                    }`}
-                    onClick={() => handleSectionClick(section)}
+              <AnimatePresence>
+                {expandedItems.section === section.id && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="ml-4 mt-2"
                   >
-                    <PlayCircleFilled className="text-blue-500" />
-                    <span>{section.title}</span>
-                  </div>
-
-                  <AnimatePresence>
-                    {expandedItems.section === section.id && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="ml-4 mt-2"
+                    {section.lessons?.map((lesson) => (
+                      <div
+                        key={lesson.id}
+                        onClick={() => handleLessonClick(lesson)}
+                        className={`p-2 rounded-md cursor-pointer flex justify-between items-center ${
+                          selectedLesson?.id === lesson.id
+                            ? "bg-blue-100"
+                            : "hover:bg-blue-50"
+                        }`}
                       >
-                        {section.lessons?.map((lesson) => (
+                        <span>{lesson.title}</span>
+                        <div className="w-14 h-2 bg-gray-200 rounded-full overflow-hidden">
                           <div
-                            key={lesson.id}
-                            onClick={() => handleLessonClick(lesson)}
-                            className={`p-2 rounded-md cursor-pointer flex justify-between items-center ${
-                              selectedLesson?.id === lesson.id
-                                ? "bg-blue-100"
-                                : "hover:bg-blue-50"
-                            }`}
-                          >
-                            <span>{lesson.title}</span>
-                            <div className="w-14 h-2 bg-gray-200 rounded-full overflow-hidden">
-                              <div
-                                className="bg-green-500 h-2"
-                                style={{ width: `${lesson.progress || 0}%` }}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+                            className="bg-green-500 h-2"
+                            style={{ width: `${lesson.progress || 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
+        </motion.div>
 
-        {/* Main Content */}
-        <div className="w-full lg:w-4/6">
+        {/* Player & Content - 2/4 */}
+        <div className="lg:col-span-2 order-last lg:order-none">
           {selectedSubLesson ? (
             <motion.div
               initial={{ opacity: 0 }}
@@ -215,7 +227,7 @@ const FrontendCourse = () => {
               </Card>
 
               {/* Navigation */}
-              <div className="flex justify-between mt-4">
+              <div className="flex justify-between mt-4 flex-wrap gap-2">
                 <Button
                   type="primary"
                   icon={<BookFilled />}
@@ -240,6 +252,58 @@ const FrontendCourse = () => {
             </Card>
           )}
         </div>
+
+        {/* Notes - 1/4 */}
+        <motion.div
+          initial={{ x: 200, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="bg-white p-4 rounded-xl shadow-xl flex flex-col order-2 lg:order-none"
+        >
+          <h2 className="text-xl font-semibold mb-3 text-blue-600">
+            📝 Eslatmalar
+          </h2>
+
+          {/* Input + Samolyotcha tugma */}
+          <div className="flex gap-2">
+            <input
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Bu yerda eslatmalaringizni yozishingiz mumkin..."
+              className="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<SendOutlined />}
+              onClick={addNote}
+            />
+          </div>
+
+          {/* Qo‘shilgan eslatmalar listi */}
+          <div className="mt-4 flex-1 overflow-y-auto max-h-[40vh] pr-2">
+            {list.length === 0 ? (
+              <p className="text-gray-400 text-center mt-6">
+                Hozircha eslatma yo‘q ✍️
+              </p>
+            ) : (
+              list.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between items-center bg-gray-50 rounded-lg px-3 py-2 mb-2 shadow-sm"
+                >
+                  <span className="text-sm break-words w-[85%]">{item}</span>
+                  <Button
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => deleteNote(index)}
+                  />
+                </div>
+              ))
+            )}
+          </div>
+        </motion.div>
       </div>
     </div>
   );
