@@ -51,7 +51,7 @@ export default function CodeSubmitter({ id }) {
             const response = await axios.post("https://api.myrobo.uz/api/handle-code-lesson/", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    "Authorization": `Bearer ${token}`
+                    "Authorization": `Token ${token}`
                 }
             });
 

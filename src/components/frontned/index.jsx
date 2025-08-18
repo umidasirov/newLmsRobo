@@ -49,6 +49,35 @@ const FrontendCourse = () => {
     toast.info("🗑️ Eslatma o‘chirildi!");
   };
 
+
+  // --- qo'shamiz ---
+  const isFirstLesson = (() => {
+    if (!selectedSection || !selectedLesson || !selectedSubLesson) return true;
+
+    const lessons = selectedSection.lessons;
+    const lessonIndex = lessons.findIndex((l) => l.id === selectedLesson.id);
+    const subLessons = selectedLesson.lessons;
+    const subIndex = subLessons.findIndex((s) => s.id === selectedSubLesson.id);
+
+    return lessonIndex === 0 && subIndex === 0;
+  })();
+
+  const isLastLesson = (() => {
+    if (!selectedSection || !selectedLesson || !selectedSubLesson) return true;
+
+    const lessons = selectedSection.lessons;
+    const lessonIndex = lessons.findIndex((l) => l.id === selectedLesson.id);
+    const subLessons = selectedLesson.lessons;
+    const subIndex = subLessons.findIndex((s) => s.id === selectedSubLesson.id);
+
+    return (
+      lessonIndex === lessons.length - 1 &&
+      subIndex === subLessons.length - 1
+    );
+  })();
+
+
+
   // Navigation handlers
   const handleSectionClick = (section) => {
     setExpandedItems((prev) => ({
@@ -99,6 +128,33 @@ const FrontendCourse = () => {
     }
   };
 
+  const handleFinishModule = () => {
+    toast.success("🎉 Tabriklaymiz! Modulni tugatdingiz!");
+    setShowConfetti(true);
+
+    // Keyingi modulga o'tish
+    const sections = findData?.lesson_bigs || [];
+    const currentSectionIndex = sections.findIndex((s) => s.id === selectedSection?.id);
+
+    // Agar keyingi modul (section) mavjud bo'lsa, unga o'tamiz
+    if (currentSectionIndex < sections.length - 1) {
+      const nextSection = sections[currentSectionIndex + 1];
+      setTimeout(() => {
+        setShowConfetti(false);
+        setSelectedSection(nextSection);
+        setExpandedItems({ section: nextSection.id, lesson: null });
+        if (nextSection.lessons?.length > 0) {
+          const firstLesson = nextSection.lessons[0];
+          setSelectedLesson(firstLesson);
+          setSelectedSubLesson(firstLesson.lessons?.[0] || null);
+        }
+      }, 2500);
+    } else {
+      // Kurs tugadi
+      setTimeout(() => setShowConfetti(false), 5000);
+    }
+  };
+
   const goToPrevLesson = () => {
     if (!selectedSection || !selectedLesson || !selectedSubLesson) return;
 
@@ -137,11 +193,10 @@ const FrontendCourse = () => {
           {findData?.lesson_bigs?.map((section) => (
             <div key={section.id} className="mb-2">
               <div
-                className={`p-3 rounded-lg flex items-center gap-2 cursor-pointer transition-all duration-300 ${
-                  selectedSection?.id === section.id
-                    ? "bg-indigo-100 text-blue-700"
-                    : "hover:bg-indigo-50"
-                }`}
+                className={`p-3 rounded-lg flex items-center gap-2 cursor-pointer transition-all duration-300 ${selectedSection?.id === section.id
+                  ? "bg-indigo-100 text-blue-700"
+                  : "hover:bg-indigo-50"
+                  }`}
                 onClick={() => handleSectionClick(section)}
               >
                 <PlayCircleFilled className="text-blue-500" />
@@ -157,22 +212,41 @@ const FrontendCourse = () => {
                     className="ml-4 mt-2"
                   >
                     {section.lessons?.map((lesson) => (
-                      <div
-                        key={lesson.id}
-                        onClick={() => handleLessonClick(lesson)}
-                        className={`p-2 rounded-md cursor-pointer flex justify-between items-center ${
-                          selectedLesson?.id === lesson.id
+                      <div key={lesson.id}>
+                        <div
+                          onClick={() => handleLessonClick(lesson)}
+                          className={`p-2 rounded-md cursor-pointer flex justify-between items-center ${selectedLesson?.id === lesson.id
                             ? "bg-blue-100"
                             : "hover:bg-blue-50"
-                        }`}
-                      >
-                        <span>{lesson.title}</span>
-                        <div className="w-14 h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="bg-green-500 h-2"
-                            style={{ width: `${lesson.progress || 0}%` }}
-                          />
+                            }`}
+                        >
+                          <span>{lesson.title}</span>
+                          <div className="w-14 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                              className="bg-green-500 h-2"
+                              style={{ width: `${lesson.progress || 0}%` }}
+                            />
+                          </div>
                         </div>
+
+                        {/* Yangi: Sub-lessons uchun kichikroq vkladka */}
+                        {selectedLesson?.id === lesson.id && lesson.lessons?.length > 1 && (
+                          <div className="ml-4 mt-1">
+                            {lesson.lessons.map((sub) => (
+                              <div
+                                key={sub.id}
+                                onClick={() => setSelectedSubLesson(sub)}
+                                className={`p-2 rounded cursor-pointer flex items-center gap-2 text-sm transition-all duration-200 ${selectedSubLesson?.id === sub.id
+                                  ? "bg-blue-100 text-blue-600"
+                                  : "hover:bg-blue-50"
+                                  }`}
+                              >
+                                <BookFilled className="text-blue-500" />
+                                <span>{sub.title}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </motion.div>
@@ -232,17 +306,19 @@ const FrontendCourse = () => {
                   type="primary"
                   icon={<BookFilled />}
                   onClick={goToPrevLesson}
+                  disabled={isFirstLesson}   // 🔹 qo'shildi
                 >
                   Oldingi
                 </Button>
                 <Button
                   type="primary"
                   icon={<CheckCircleFilled />}
-                  onClick={goToNextLesson}
+                  onClick={isLastLesson ? handleFinishModule : goToNextLesson}
                 >
-                  Keyingi
+                  {isLastLesson ? "Modulni tugatish" : "Keyingi"}
                 </Button>
               </div>
+
             </motion.div>
           ) : (
             <Card title="Darsni tanlang" className="shadow-lg">

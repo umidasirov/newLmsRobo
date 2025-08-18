@@ -15,9 +15,12 @@ function TeamComponents() {
       url: `/api/teacher/`,
       method: "GET",
     })
-      .then((data) => setTeacherData(data))
+      .then((data) => 
+        {setTeacherData(data)
+        }
+    )
       .catch((error) => console.log(error));
-  }, [axios,  ]);
+  }, []);
 
   const url = "https://api.myrobo.uz";
 

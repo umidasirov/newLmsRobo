@@ -59,41 +59,6 @@ export const DataProvider = ({ children }) => {
     return Math.round((filledFieldsCount / fields.length) * 100);
   };
 
-  // useEffect: user o‘zgarganda proccess ni userga qo‘shish va n ga ham yozish
-  useEffect(() => {
-    const profCompletion = calculateProfileCompletion(user);
-    setUser(prevUser => ({
-      ...prevUser,
-      proccess: profCompletion,
-    }));
-    setN(profCompletion);
-  }, [user.name, user.surname, user.phone, user.balans, user.level]);
-
-  // Kurs progressini hisoblash va progress state ga yozish
-  // useEffect(() => {
-  //   if (courseData.length > 0 && user.bought.length > 0) {
-  //     const boughtCourseIds = user.bought
-  //       .filter(item => item.status === "bought")
-  //       .map(item => item.id);
-
-  //     const relevantLessons = courseData.filter(lesson =>
-  //       boughtCourseIds.includes(lesson.courseId)
-  //     );
-
-  //     if (relevantLessons.length === 0) {
-  //       setProgress(0);
-  //       return;
-  //     }
-
-  //     const completedLessons = relevantLessons.filter(lesson => lesson.completed).length;
-  //     const percent = Math.round((completedLessons / relevantLessons.length) * 100);
-
-  //     setProgress(percent);
-  //   } else {
-  //     setProgress(0);
-  //   }
-  // }, [courseData, user.bought]);
-
   return (
     <DataContext.Provider
       value={{
