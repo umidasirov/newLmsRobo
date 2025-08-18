@@ -24,6 +24,10 @@ const notificationApi = () => {
         return notification.error({
           message: "Ko'd xato bolishi mumkin",
         });
+      case "finishCourse":
+        return notification.success({
+          message: "Tabriklaymiz siz kursni muvofaqiyatli tugatdingiz!",
+        });
       default:
         return notification.info({
           message: "Noma’lum holat yuz berdi!",

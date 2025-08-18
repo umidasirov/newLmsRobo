@@ -9,16 +9,19 @@ import {
 } from "@ant-design/icons";
 import ReactPlayer from "react-player";
 import { useData } from "../../datacontect";
-import { useLocation } from "react-router-dom";
+import { useLocation,useNavigate } from "react-router-dom";
 import CodeSubmitter from "../compiler";
 import Confetti from "react-confetti";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
+import notificationApi from "../../generic/notificition";
+
 
 const FrontendCourse = () => {
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [selectedSubLesson, setSelectedSubLesson] = useState(null);
+  const [courseFinished, setCourseFinished] = useState(false);
   const [expandedItems, setExpandedItems] = useState({
     section: null,
     lesson: null,
@@ -44,6 +47,8 @@ const FrontendCourse = () => {
     toast.success("✅ Eslatma qo‘shildi!");
   };
 
+  const notify = notificationApi();
+  const navigate = useNavigate();
   const deleteNote = (index) => {
     setList((prev) => prev.filter((_, i) => i !== index));
     toast.info("🗑️ Eslatma o‘chirildi!");
@@ -150,9 +155,14 @@ const FrontendCourse = () => {
         }
       }, 2500);
     } else {
-      // Kurs tugadi
-      setTimeout(() => setShowConfetti(false), 5000);
-    }
+  setCourseFinished(true);
+  setShowConfetti(true);
+  setTimeout(() => {
+    setShowConfetti(false);
+    notify({ type: "finishCourse" });
+    navigate("/profilim");
+  }, 5000);
+}
   };
 
   const goToPrevLesson = () => {
