@@ -1,6 +1,6 @@
+import { motion } from "framer-motion";
 import React from "react";
 import opani_Rasmi from "../../assets/page_2.jpg";
-import { motion } from "framer-motion";
 
 const PremiumEducation = () => {
   const text_data = [

@@ -5,38 +5,32 @@ import Cookies from "js-cookie";
 import { UserOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import { useAxios } from "../../hooks";
 import notificationApi from "../../generic/notificition";
-import { useData } from "../../datacontect";
+import { useUser } from "../../context/UserContext";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-
   const axios = useAxios();
+  const { setUser } = useUser();
+
   const [codeDigits, setCodeDigits] = useState(["", "", "", "", "", ""]);
-  const [status, setStatus] = useState("");
   const [error, setError] = useState("");
 
   const uuid = Cookies.get("my_uuid");
   const access = localStorage.getItem("token");
   const notify = notificationApi();
 
-  const { setD } = useData()
   useEffect(() => {
     if (!uuid) {
       const newUUID = uuidv4();
       Cookies.set("my_uuid", newUUID, { expires: 365 });
-      console.log("Yangi UUID:", newUUID);
-    } else {
-      console.log("Mavjud UUID:", uuid);
     }
-  }, []);
+  }, [uuid]);
 
   useEffect(() => {
     if (access) {
       navigate("/");
     }
   }, [access, navigate]);
-
-  const telegramLink = `https://t.me/robologinbot?start=${uuid}`;
 
   const handleDigitChange = (e, index) => {
     const value = e.target.value.replace(/\D/, "").slice(0, 1);
@@ -70,90 +64,52 @@ const LoginPage = () => {
 
   const handleCodeSubmit = async () => {
     const code = codeDigits.join("");
-    if (!code || code.length !== 6) {
+    if (code.length !== 6) {
       setError("Iltimos, 6 xonali kodni to‘liq kiriting.");
       return;
     }
+    setError("");
 
-    axios({
-      url: "/verify_code/",
-      method: "POST",
-      data: {
-        code,
-        uuid,
-      },
-    })
-      .then((data) => {
-        console.log("User ku bu", data);
-        if (data?.status === "success") {
-          notify({ type: "loginSuccses" });
-        }
-        console.log("Serverdan kelgan data:", data);
-        setD(data)
-        localStorage.setItem("token", data?.token);
-        localStorage.setItem("balance", data?.user_balance);
-        const fetchUser = () => {
-          console.log("ish boshlandi");
-
-          axios({
-            url: "/api/user-get/",
-            method: "GET",
-            headers: { Authorization: `Token ${token}` }
-          })
-            .then((data) => {
-              console.log("GET-USER RESPONSE:", data);
-              setUser(data); // 🔹 user state’ni yangilash
-              console.log("User ku bu", data);
-              if (data?.status === "success") {
-                notify({ type: "loginSuccses" });
-              }
-              console.log("Serverdan kelgan data:", data);
-              setD(data)
-              localStorage.setItem("token", data?.token);
-              localStorage.setItem("balance", data?.user_balance);
-              localStorage.setItem("status", data?.pay_status);
-            })
-            .catch((err) => {
-              console.error("GET-USER ERROR:", err);
-            });
-        };
-        localStorage.setItem("status", data?.pay_status);
-        navigate("/profilim");
-      })
-      .catch((error) => {
-        console.log(error)
-        notify({ type: "loginError" });
-      }
-      );
-
-    axios({
-      url: "/api/user-get/",
-      method: "GET",
-      headers: { Authorization: `Token ${token}` }
-    })
-      .then((data) => {
-        console.log("GET-USER RESPONSE:", data);
-        setUser(data); // 🔹 user state’ni yangilash
-        console.log("User ku bu", data);
-        if (data?.status === "success") {
-          notify({ type: "loginSuccses" });
-        }
-        console.log("Serverdan kelgan data:", data);
-        setD(data)
-        localStorage.setItem("token", data?.token);
-        localStorage.setItem("balance", data?.user_balance);
-        localStorage.setItem("phone", data.phone_number);
-        localStorage.setItem("status", data?.pay_status);
-      })
-      .catch((err) => {
-        console.error("GET-USER ERROR:", err);
+    try {
+      // Step 1: Verify the code and get the token
+      const verifyResponse = await axios({
+        url: "/verify_code/",
+        method: "POST",
+        data: { code, uuid },
       });
+
+      if (verifyResponse?.token) {
+        const { token, user_balance, pay_status } = verifyResponse;
+        localStorage.setItem("token", token);
+        localStorage.setItem("balance", user_balance);
+        localStorage.setItem("status", pay_status);
+
+        // Step 2: Fetch user data with the new token
+        const userResponse = await axios({
+          url: "/api/user-get/",
+          method: "GET",
+          headers: { Authorization: `Token ${token}` },
+        });
+
+        setUser(userResponse); // Update user state in context
+        localStorage.setItem("phone", userResponse.phone_number);
+
+        notify({ type: "loginSuccses" });
+        navigate("/profilim");
+      } else {
+        throw new Error("Token not received");
+      }
+    } catch (err) {
+      console.error("Login Error:", err);
+      notify({ type: "loginError" });
+      setError("Kod xato yoki eskirgan. Qaytadan urinib ko'ring.");
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-4">
       <div className="max-w-4xl bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row">
-        <div className="w-full  p-8 flex flex-col items-center justify-center">
+        <div className="w-full p-8 flex flex-col items-center justify-center">
           <div className="mb-8 text-center">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <UserOutlined className="text-blue-600 text-2xl" />
@@ -165,10 +121,14 @@ const LoginPage = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block text-blue-600 border border-blue-600 px-1 py-1 rounded-md mt-4 hover:bg-blue-50 transition"
-              >@robologinbot</a> Telegram botiga kiring va 1 daqiqalik kodingizni oling.</p>
+              >
+                @robologinbot
+              </a>{" "}
+              Telegram botiga kiring va 1 daqiqalik kodingizni oling.
+            </p>
           </div>
 
-          <div className=" max-w-xs">
+          <div className="max-w-xs">
             <div className="flex justify-between gap-2 mb-6">
               {codeDigits.map((digit, idx) => (
                 <input
@@ -185,14 +145,9 @@ const LoginPage = () => {
               ))}
             </div>
 
-            {(status || error) && (
-              <div
-                className={`mb-4 p-3 rounded-lg text-sm ${error
-                  ? "bg-red-100 text-red-700"
-                  : "bg-blue-100 text-blue-700"
-                  }`}
-              >
-                {error || status}
+            {error && (
+              <div className="mb-4 p-3 rounded-lg text-sm bg-red-100 text-red-700">
+                {error}
               </div>
             )}
 
@@ -204,7 +159,6 @@ const LoginPage = () => {
             </button>
           </div>
         </div>
-
       </div>
     </div>
   );

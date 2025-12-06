@@ -8,30 +8,28 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import ReactPlayer from "react-player";
-import { useData } from "../../datacontect";
-import { useLocation,useNavigate } from "react-router-dom";
+import { useCourses } from "../../context/CoursesContext";
+import { useLocation, useNavigate } from "react-router-dom";
 import CodeSubmitter from "../compiler";
 import Confetti from "react-confetti";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import notificationApi from "../../generic/notificition";
 
-
 const FrontendCourse = () => {
   const [selectedSection, setSelectedSection] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [selectedSubLesson, setSelectedSubLesson] = useState(null);
-  const [courseFinished, setCourseFinished] = useState(false);
   const [expandedItems, setExpandedItems] = useState({
     section: null,
     lesson: null,
   });
   const [showConfetti, setShowConfetti] = useState(false);
 
-  const { data } = useData();
+  const { courses } = useCourses();
   const location = useLocation();
   const id = location?.state?.id;
-  const findData = data.find((item) => item?.id === id);
+  const findData = courses.find((item) => item?.id === id);
 
   // Notes state
   const [notes, setNotes] = useState("");
@@ -53,7 +51,6 @@ const FrontendCourse = () => {
     setList((prev) => prev.filter((_, i) => i !== index));
     toast.info("🗑️ Eslatma o‘chirildi!");
   };
-
 
   // --- qo'shamiz ---
   const isFirstLesson = (() => {
@@ -80,8 +77,6 @@ const FrontendCourse = () => {
       subIndex === subLessons.length - 1
     );
   })();
-
-
 
   // Navigation handlers
   const handleSectionClick = (section) => {
@@ -155,14 +150,13 @@ const FrontendCourse = () => {
         }
       }, 2500);
     } else {
-  setCourseFinished(true);
-  setShowConfetti(true);
-  setTimeout(() => {
-    setShowConfetti(false);
-    notify({ type: "finishCourse" });
-    navigate("/profilim");
-  }, 5000);
-}
+      setShowConfetti(true);
+      setTimeout(() => {
+        setShowConfetti(false);
+        notify({ type: "finishCourse" });
+        navigate("/profilim");
+      }, 5000);
+    }
   };
 
   const goToPrevLesson = () => {
@@ -203,10 +197,11 @@ const FrontendCourse = () => {
           {findData?.lesson_bigs?.map((section) => (
             <div key={section.id} className="mb-2">
               <div
-                className={`p-3 rounded-lg flex items-center gap-2 cursor-pointer transition-all duration-300 ${selectedSection?.id === section.id
-                  ? "bg-indigo-100 text-blue-700"
-                  : "hover:bg-indigo-50"
-                  }`}
+                className={`p-3 rounded-lg flex items-center gap-2 cursor-pointer transition-all duration-300 ${
+                  selectedSection?.id === section.id
+                    ? "bg-indigo-100 text-blue-700"
+                    : "hover:bg-indigo-50"
+                }`}
                 onClick={() => handleSectionClick(section)}
               >
                 <PlayCircleFilled className="text-blue-500" />
@@ -225,10 +220,11 @@ const FrontendCourse = () => {
                       <div key={lesson.id}>
                         <div
                           onClick={() => handleLessonClick(lesson)}
-                          className={`p-2 rounded-md cursor-pointer flex justify-between items-center ${selectedLesson?.id === lesson.id
-                            ? "bg-blue-100"
-                            : "hover:bg-blue-50"
-                            }`}
+                          className={`p-2 rounded-md cursor-pointer flex justify-between items-center ${
+                            selectedLesson?.id === lesson.id
+                              ? "bg-blue-100"
+                              : "hover:bg-blue-50"
+                          }`}
                         >
                           <span>{lesson.title}</span>
                           <div className="w-14 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -240,23 +236,25 @@ const FrontendCourse = () => {
                         </div>
 
                         {/* Yangi: Sub-lessons uchun kichikroq vkladka */}
-                        {selectedLesson?.id === lesson.id && lesson.lessons?.length > 1 && (
-                          <div className="ml-4 mt-1">
-                            {lesson.lessons.map((sub) => (
-                              <div
-                                key={sub.id}
-                                onClick={() => setSelectedSubLesson(sub)}
-                                className={`p-2 rounded cursor-pointer flex items-center gap-2 text-sm transition-all duration-200 ${selectedSubLesson?.id === sub.id
-                                  ? "bg-blue-100 text-blue-600"
-                                  : "hover:bg-blue-50"
+                        {selectedLesson?.id === lesson.id &&
+                          lesson.lessons?.length > 1 && (
+                            <div className="ml-4 mt-1">
+                              {lesson.lessons.map((sub) => (
+                                <div
+                                  key={sub.id}
+                                  onClick={() => setSelectedSubLesson(sub)}
+                                  className={`p-2 rounded cursor-pointer flex items-center gap-2 text-sm transition-all duration-200 ${
+                                    selectedSubLesson?.id === sub.id
+                                      ? "bg-blue-100 text-blue-600"
+                                      : "hover:bg-blue-50"
                                   }`}
-                              >
-                                <BookFilled className="text-blue-500" />
-                                <span>{sub.title}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                                >
+                                  <BookFilled className="text-blue-500" />
+                                  <span>{sub.title}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                       </div>
                     ))}
                   </motion.div>
@@ -316,7 +314,7 @@ const FrontendCourse = () => {
                   type="primary"
                   icon={<BookFilled />}
                   onClick={goToPrevLesson}
-                  disabled={isFirstLesson}   // 🔹 qo'shildi
+                  disabled={isFirstLesson} // 🔹 qo'shildi
                 >
                   Oldingi
                 </Button>
@@ -328,7 +326,6 @@ const FrontendCourse = () => {
                   {isLastLesson ? "Modulni tugatish" : "Keyingi"}
                 </Button>
               </div>
-
             </motion.div>
           ) : (
             <Card title="Darsni tanlang" className="shadow-lg">

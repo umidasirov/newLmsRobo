@@ -1,88 +1,74 @@
 import { useState, useEffect } from "react";
-
 import { CheckOutlined, CodeOutlined } from "@ant-design/icons";
-import { useData } from "../../datacontect";
+import { useCourses } from "../../context/CoursesContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAxios } from "../../hooks";
 import notificationApi from "../../generic/notificition";
-function KirishComponentsID() {
-  const { data } = useData();
-  const [status, setStatus] = useState(false)
-  const location = useLocation();
-  const { id } = location?.state;
-  const axios = useAxios();
-  const findData = data.find((item) => item?.id === id);
-  const notify = notificationApi();
 
+function CourseDetail() {
+  const { courses } = useCourses();
+  const [status, setStatus] = useState(false);
+  const location = useLocation();
+  const { id } = location.state || {};
+  const axios = useAxios();
+  const findData = courses.find((item) => item?.id === id);
+  const notify = notificationApi();
   const navigate = useNavigate();
   const url = "https://api.myrobo.uz";
-
-  console.log(findData, "kndsyc");
-
   const token = localStorage.getItem("token");
-  
+
+  useEffect(() => {
+    if (!token || !findData) return;
+
+    const checkCourseStatus = () => {
+      axios({
+        url: "/api/check-course-status/", // Assuming a different endpoint for checking
+        method: "POST",
+        data: { course_id: findData.id },
+        headers: { Authorization: `Token ${token}` },
+      })
+        .then((response) => {
+          if (response.is_purchased) {
+            setStatus(true);
+          }
+        })
+        .catch((error) => {
+          console.log("Status check error:", error);
+        });
+    };
+
+    checkCourseStatus();
+  }, [findData, token, axios]);
+
+  const buyCourse = (courseId) => {
+    if (!token) {
+      notify({ type: "token" });
+      return;
+    }
+
+    axios({
+      url: "/api/purchased-courses/",
+      method: "POST",
+      data: { course_id: courseId },
+      headers: { Authorization: `Token ${token}` },
+    })
+      .then((response) => {
+        if (response?.message === "You have already purchased this course") {
+          navigate(`/frontend/`, { state: { id: courseId } });
+        } else {
+          notify({ type: "success" });
+          setStatus(true); // Update status on successful purchase
+        }
+      })
+      .catch((error) => console.log(error));
+  };
+
   const postData = () => {
     if (!token) {
       notify({ type: "token" });
       return;
     }
   };
-  useEffect(() => {
-    if (findData) {
-      onstatus();
-    }
-  }, [findData]);
-
-  function onstatus() {
-    if (!token) return;
-
-    const data = { course_id: findData.id };
-
-    axios({
-      url: "/api/purchased-courses/",
-      method: "POST", // <-- AYNIKSA, BU ENDPOINT TO‘G‘RIMI? Agar bu faqat `/check/` bo‘lsa!
-      data,
-    })
-    .then((res) => {
-        notify({ type: "buyCourses" });
-        setStatus(true);
-      })
-      .catch((error) => {
-        console.log("Status check error:", error);
-      });
-  }
-
-
-  const buyCourse = (id) => {
-    if (!token) {
-      notify({ type: "token" });
-      return;
-    }
-
-    const data = {
-      course_id: id,
-    };
-
-    console.log(data, "lknjbhuyt");
-    axios({
-      url: "/api/purchased-courses/",
-      method: "POST",
-      data,
-    })
-      .then((data) => {
-        console.log(data);
-        if (data?.message === "You have already purchased this course") {
-          navigate(`/frontned/`, { state: { id: id } });
-        } else {
-          notify({ type: "success" });
-          navigate("/course-detail", { state: { id: findData.id } });
-        }
-      })
-      .catch((error) => console.log(error));
-  };
-
-  console.log(findData, "xnsj");
-
   return (
     <div className="bg-gray-100 min-h-screen font-sans">
       <div className="w-[90%] m-auto px-4 py-8">
@@ -119,7 +105,6 @@ function KirishComponentsID() {
                   <div key={value?.id} className="flex items-start">
                     <CheckOutlined
                       className="text-green-500 mr-2 mt-1 flex-shrink-0"
-                      size={18}
                     />
                     <p className="text-gray-700">{value?.name}</p>
                   </div>
@@ -128,7 +113,6 @@ function KirishComponentsID() {
                 <div className="flex items-start">
                   <CheckOutlined
                     className="text-green-500 mr-2 mt-1 flex-shrink-0"
-                    size={18}
                   />
                   <p className="text-gray-700">Sertifikat</p>
                 </div>
@@ -137,22 +121,22 @@ function KirishComponentsID() {
 
             <div className="space-y-4">
               {findData?.lesson_bigs?.map((value) => (
-                <div>
+                <div key={value?.id}>
                   <div className="bg-blue-900 text-white p-4 rounded-t-lg mt-6">
                     <h3 className="font-medium">{value?.title}</h3>
                   </div>
                   <div className="bg-white p-4 shadow-md rounded-b-lg">
                     <p
-                      onClick={() => postData()}
+                      onClick={postData}
                       className="text-gray-600 text-sm cursor-pointer"
                     >
                       {value?.title}
                     </p>
                     <button
-                      onClick={() => postData()}
+                      onClick={postData}
                       className="flex items-center text-blue-500 text-sm mt-2 hover:text-blue-700"
                     >
-                      <CodeOutlined size={16} className="mr-1" />
+                      <CodeOutlined className="mr-1" />
                       code print
                     </button>
                   </div>
@@ -166,6 +150,7 @@ function KirishComponentsID() {
               <img
                 src={`${url}/${findData?.teacher?.img}`}
                 className="w-full h-64 object-cover"
+                alt={findData?.teacher?.username}
               />
 
               <div className="p-6">
@@ -187,32 +172,34 @@ function KirishComponentsID() {
                     </span>
                   </div>
                 </div>
-                {status &&
+                {status && (
                   <div className="border-t border-b py-4 my-4">
                     <div className="flex items-center mt-1">
-                      <span className="text-xl font-bold">
-                        Status:
-                      </span>
+                      <span className="text-xl font-bold">Status:</span>
                       <span className="text-gray-400 ml-2 text-sm">
                         To'landi ✔
                       </span>
                     </div>
-                  </div>}
-                  {status?
-                <button
-                  onClick={() => navigate(`/frontned/`, { state: { id: findData?.id }})}
-                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-md w-full py-3 font-medium transition duration-300 shadow-md"
-                >
-                  Kursga o'tish
-                </button>:
-                <button
-                  onClick={() => buyCourse(findData?.id)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-md w-full py-3 font-medium transition duration-300 shadow-md"
-                >
-                  Sotib olish
-                </button>
-                  }
-                {!status &&
+                  </div>
+                )}
+                {status ? (
+                  <button
+                    onClick={() =>
+                      navigate(`/frontend/`, { state: { id: findData?.id } })
+                    }
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-md w-full py-3 font-medium transition duration-300 shadow-md"
+                  >
+                    Kursga o'tish
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => buyCourse(findData?.id)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-md w-full py-3 font-medium transition duration-300 shadow-md"
+                  >
+                    Sotib olish
+                  </button>
+                )}
+                {!status && (
                   <div className="flex justify-around mt-4">
                     <img
                       src="https://api.logobank.uz/media/logos_png/Uzcard-01.png"
@@ -230,7 +217,7 @@ function KirishComponentsID() {
                       className="h-12 w-12 rounded-md"
                     />
                   </div>
-                }
+                )}
               </div>
             </div>
           </div>
@@ -240,4 +227,4 @@ function KirishComponentsID() {
   );
 }
 
-export default KirishComponentsID;
+export default CourseDetail;

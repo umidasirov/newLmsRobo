@@ -1,30 +1,18 @@
 import { useEffect } from "react";
-import { useData } from "../../datacontect";
 import { Link, useNavigate } from "react-router-dom";
 import { useAxios } from "../../hooks";
 import { EditOutlined } from "@ant-design/icons";
-import Reception from "../reception/index";
-import KirishComponents from "../kirish";
+import Reception from "../registration/index"; // reception -> registration
+import KirishComponents from "../../components/kirish"; // ../kirish -> ../../components/kirish
+import { useUser } from "../../context/UserContext";
+import { useTeachers } from "../../context/TeachersContext";
+import { useCourses } from "../../context/CoursesContext";
 
 const Profilim = () => {
   const navigate = useNavigate();
-  const context = useData();
-
-  if (!context) {
-    return <div>Loading...</div>;
-  }
-
-  const {
-    user,
-    setUser, // 🔹 context ichida bo‘lishi kerak
-    data,
-    setTeacherData,
-    setCourseData,
-    courseData,
-    showProfileForm,
-    setShowProfileForm,
-    n
-  } = context;
+  const { user, setUser, showProfileForm, setShowProfileForm } = useUser();
+  const { setTeachers } = useTeachers();
+  const { setCourses } = useCourses();
 
   const axios = useAxios();
   const url = "https://api.myrobo.uz";
@@ -38,7 +26,7 @@ const Profilim = () => {
       axios({
         url: "/api/user-get/",
         method: "GET",
-        headers: { Authorization: `Token ${token}` }
+        headers: { Authorization: `Token ${token}` },
       })
         .then((res) => {
           setUser(res);
@@ -51,34 +39,31 @@ const Profilim = () => {
     const interval = setInterval(fetchUser, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [axios, setUser, token]);
 
   // Fetch teachers data
   useEffect(() => {
-    if (!token) return;
-
     axios({
       url: "/api/teacher/",
-      method: "GET"
+      method: "GET",
     })
-      .then((data) => setTeacherData(data))
+      .then((data) => setTeachers(data))
       .catch((error) => console.error(error));
-  }, []);
+  }, [axios, setTeachers]);
 
   // Fetch course data
   useEffect(() => {
     axios({ url: "/api/courses/", method: "GET" })
-      .then((data) => setCourseData(data))
+      .then((data) => setCourses(data))
       .catch((error) => console.error(error));
-  }, []);
-  console.log(user)
+  }, [axios, setCourses]);
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row p-4 md:p-8 text-gray-800 gap-6">
       {/* Sidebar */}
       <aside className="w-full md:w-1/4 bg-white p-6 rounded-xl shadow flex flex-col items-center text-center">
         <h1 className="text-2xl font-bold mb-2">
-          Salom,{" "}
-          <span className="text-blue-500">{user?.name || "Foydalanuvchi"}</span>
+          Salom, <span className="text-blue-500">{user?.name || "Foydalanuvchi"}</span>
         </h1>
         <p className="text-sm text-gray-500 mb-6">Boshqaruv paneliga xush kelibsiz</p>
 

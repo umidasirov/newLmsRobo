@@ -3,12 +3,21 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { RouterProvider } from "react-router-dom";
 import root from "./router/index.jsx";
-import { DataProvider } from "./datacontect/index.jsx";
+import { UserProvider } from "./context/UserContext.jsx";
+import { CoursesProvider } from "./context/CoursesContext.jsx";
+import { BlogProvider } from "./context/BlogContext.jsx";
+import { TeachersProvider } from "./context/TeachersContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <DataProvider>
-      <RouterProvider router={root} />
-    </DataProvider>
+    <UserProvider>
+      <CoursesProvider>
+        <BlogProvider>
+          <TeachersProvider>
+            <RouterProvider router={root} />
+          </TeachersProvider>
+        </BlogProvider>
+      </CoursesProvider>
+    </UserProvider>
   </StrictMode>
 );

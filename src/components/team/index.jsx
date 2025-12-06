@@ -1,31 +1,29 @@
-import { Button } from "antd";
 import { useAxios } from "../../hooks";
 import { useEffect } from "react";
-import { useData } from "../../datacontect";
+import { useTeachers } from "../../context/TeachersContext";
 import { useNavigate } from "react-router-dom";
 
 function TeamComponents() {
   const axios = useAxios();
   const navigate = useNavigate();
-  
-  const { teacherData, setTeacherData } = useData();
+
+  const { teachers, setTeachers } = useTeachers();
 
   useEffect(() => {
     axios({
       url: `/api/teacher/`,
       method: "GET",
     })
-      .then((data) => 
-        {setTeacherData(data)
-        }
-    )
+      .then((data) => {
+        setTeachers(data);
+      })
       .catch((error) => console.log(error));
-  }, []);
+  }, [axios, setTeachers]);
 
   const url = "https://api.myrobo.uz";
 
   const postID = (slug) => {
-    navigate(`/team2/`, { state: { name: slug } });
+    navigate(`/team/`, { state: { name: slug } });
   };
 
   return (
@@ -36,7 +34,7 @@ function TeamComponents() {
         </h1>
 
         <div className="w-full flex items-center justify-evenly flex-wrap">
-          {teacherData?.map((e) => (
+          {teachers?.map((e) => (
             <div
               key={e.slug}
               onClick={() => postID(e.slug)}
