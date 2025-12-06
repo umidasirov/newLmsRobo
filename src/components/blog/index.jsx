@@ -1,35 +1,33 @@
 import { useEffect } from "react";
-import { EyeOutlined } from "@ant-design/icons";
-import { CalendarOutlined } from "@ant-design/icons";
-import { Link, useNavigate } from "react-router-dom";
+import { EyeOutlined, CalendarOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import { useAxios } from "../../hooks";
-import { useData } from "../../datacontect";
+import { useBlog } from "../../context/BlogContext";
+
 function BlogComponents() {
   const axios = useAxios();
   const navigate = useNavigate();
-  const { blogData, setBlogData } = useData();
+  const { blogPosts, setBlogPosts } = useBlog();
 
   useEffect(() => {
     axios({
       url: "/api/blog/",
       method: "GET",
     })
-      .then((data) => setBlogData(data))
+      .then((data) => setBlogPosts(data))
       .catch((error) => console.log(error));
-  }, []);
+  }, [axios, setBlogPosts]);
 
   const truncateDescription = (text, limit = 15) => {
+    if (!text) return "";
     const words = text.split(" ");
-    return (
-      words.slice(0, limit).join(" ") + (words.length > limit ? "..." : "")
-    );
+    return words.slice(0, limit).join(" ") + (words.length > limit ? "..." : "");
   };
 
   const truncateDescription2 = (text, limit = 8) => {
+    if (!text) return "";
     const words = text.split(" ");
-    return (
-      words.slice(0, limit).join(" ") + (words.length > limit ? "..." : "")
-    );
+    return words.slice(0, limit).join(" ") + (words.length > limit ? "..." : "");
   };
 
   const formatDate = (isoDate) => {
@@ -41,8 +39,7 @@ function BlogComponents() {
   };
 
   const postId = (slug) => {
-    navigate(`/blog/${slug}}`, { state: { name: slug } });
-    console.log(slug, "xx");
+    navigate(`/blog/${slug}`, { state: { name: slug } });
   };
 
   const url = "https://api.myrobo.uz";
@@ -50,13 +47,13 @@ function BlogComponents() {
   return (
     <section className="w-[90%] m-auto mt-[40px]">
       <div className=" grid grid-cols-2 gap-[25px] w-full max-[1081px]:grid-cols-1">
-        {blogData?.map((value) => (
+        {blogPosts?.map((value) => (
           <div
             className="w-full"
             onClick={() => postId(value?.slug)}
             key={value?.id}
           >
-            <div className="bg-[#f1f2f7]   flex items-center justify-between gap-[20px] p-5 rounded-lg w-full max-[540px]:flex-col hover:shadow-xl transition-shadow duration-800 cursor-pointer">
+            <div className="bg-[#f1f2f7] flex items-center justify-between gap-[20px] p-5 rounded-lg w-full max-[540px]:flex-col hover:shadow-xl transition-shadow duration-800 cursor-pointer">
               <div className="w-full h-[270px]">
                 <img
                   className="rounded-lg w-full h-full object-cover"

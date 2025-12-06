@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Button } from "antd";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button, Empty } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useAxios } from "../../hooks";
 import { useCourses } from "../../context/CoursesContext";
+import { useAxios } from "../../hooks";
 
-function KirishComponents({ center = true, sort }) {
+function MeningKurslarim() {
   const [activeCard, setActiveCard] = useState(null);
-  const axios = useAxios();
-  const { courses, setCourses } = useCourses();
   const navigate = useNavigate();
+  const { courses, setCourses } = useCourses();
+  const axios = useAxios();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios({
@@ -19,11 +20,12 @@ function KirishComponents({ center = true, sort }) {
       .then((data) => {
         setCourses(data);
       })
-      .catch((error) => console.log(error));
+      .catch((error) => console.log(error))
+      .finally(() => setLoading(false));
   }, [axios, setCourses]);
 
   const postId = (id) => {
-    navigate(`/kurslar/${id}`, { state: { id } });
+    navigate(`/frontend/`, { state: { id: id } });
   };
 
   const truncateDescription = (text, limit = 27) => {
@@ -32,79 +34,53 @@ function KirishComponents({ center = true, sort }) {
     return words.slice(0, limit).join(" ") + (words.length > limit ? "..." : "");
   };
 
-  const filteredData = Array.isArray(courses)
-    ? courses.filter((value) => {
-        if (sort === true) return value?.paid;
-        if (sort === false) return !value?.paid;
-        return true;
-      })
-    : [];
+  const paidCourses = courses?.filter((value) => value?.paid === true);
+
+  if (loading) {
+    return (
+      <div className="w-full flex flex-col items-center justify-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid mb-4"></div>
+        <span className="text-blue-500 font-semibold">Yuklanmoqda...</span>
+      </div>
+    );
+  }
 
   return (
-    <section
-      className={`${
-        center ? "w-[90%] m-auto mt-[60px] max-[768px]:mt-[30px]" : ""
-      }`}
-    >
-      <div
-        className={`flex flex-wrap ${
-          center ? "justify-center" : "justify-start max-sm:justify-center"
-        } gap-8`}
-      >
-        {filteredData.length > 0 ? (
-          filteredData.map((value) => {
-            const isPaid = Boolean(value?.paid);
-            const paidBadgeClass = isPaid
-              ? "bg-green-100 text-green-700 border border-green-200"
-              : "bg-red-100 text-red-700 border border-red-200";
-            const paidText = isPaid ? "Sotib olingan" : "Sotib olinmagan";
-
-            return (
+    <section className="w-[90%] m-auto max-[768px]:mt-[30px]">
+      <div>
+        <h1 className="text-center py-[40px] font-bold text-[22px] max-[768px]:py-[20px]">
+          Mening kurslarim
+        </h1>
+        <div className="flex flex-wrap justify-center gap-8">
+          {paidCourses?.length > 0 ? (
+            paidCourses.map((value) => (
               <div
                 key={value?.id}
                 className="relative w-[300px] h-[400px] rounded-lg shadow-lg overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl"
                 onMouseEnter={() => setActiveCard(value?.id)}
                 onMouseLeave={() => setActiveCard(null)}
               >
-                {/* Paid badge */}
-                <div className="absolute top-3 right-3 z-10">
-                  <span
-                    className={`px-2 py-1 text-[11px] font-semibold rounded-full backdrop-blur ${paidBadgeClass}`}
-                  >
-                    {paidText}
-                  </span>
-                </div>
-
                 <div className="h-full flex flex-col">
-                  <div className="h-[180px] overflow-hidden relative">
+                  <div className="h-[180px] overflow-hidden">
                     <img
                       className="w-full h-full object-cover"
                       src={value?.img}
                       alt={value?.title}
                     />
-                    {!isPaid && (
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent pointer-events-none" />
-                    )}
                   </div>
-
                   <div className="p-5 flex-1 flex flex-col bg-white">
                     <div className="flex items-center mb-2">
                       <div className="w-4 h-4 bg-blue-100 rounded-full mr-2"></div>
-                      <span className="text-green-600 font-medium">
-                        {value?.price}
-                      </span>
+                      <span className="text-green-600 font-medium">Bepul</span>
                     </div>
-
                     <h3 className="text-lg font-bold mb-3 line-clamp-2">
                       {value?.title}
                     </h3>
-
                     <div className="flex justify-between mt-auto text-gray-500 text-sm">
-                      {/* ... Icons and other details ... */}
+                      {/* ... iconlar va boshqa ma'lumotlar ... */}
                     </div>
                   </div>
                 </div>
-
                 <AnimatePresence>
                   {activeCard === value?.id && (
                     <motion.div
@@ -112,48 +88,54 @@ function KirishComponents({ center = true, sort }) {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
                       transition={{ duration: 0.3 }}
-                      className="absolute inset-0 bg-white p-5 flex flex-col shadow-2xl z-30"
+                      className="absolute inset-0 bg-white p-5 flex flex-col z-10 shadow-2xl"
                     >
                       <div className="mb-4 p-2 bg-blue-50 rounded-md">
                         <h3 className="text-lg font-bold text-center">
                           {value?.title}
                         </h3>
-                        <div className="mt-2 flex items-center justify-center gap-2 text-xs">
-                          <span
-                            className={`px-2 py-0.5 rounded-full border ${paidBadgeClass}`}
-                          >
-                            {paidText}
-                          </span>
-                        </div>
                       </div>
-
                       <div className="flex-1 overflow-y-auto">
                         <p className="text-gray-700 mb-4">
                           {truncateDescription(value?.description)}
                         </p>
-                        {/* ... Icons and other details ... */}
+                        {/* ... iconlar va boshqa ma'lumotlar ... */}
                       </div>
-
                       <Button
                         type="primary"
                         block
                         className="mt-auto"
                         onClick={() => postId(value?.id)}
                       >
-                        Batafsil
+                        Boshlash
                       </Button>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-            );
-          })
-        ) : (
-          <p className="text-gray-500">Kurslar topilmadi</p>
-        )}
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center py-20 gap-[30px] w-full">
+              <Empty
+                image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+                imageStyle={{ height: 120 }}
+              />
+              <span className="text-lg text-center">
+                Sizda hozircha sotib olingan kurslar mavjud emas
+              </span>
+              <Button
+                type="primary"
+                size="large"
+                onClick={() => navigate("/kurslar")}
+              >
+                Kurslarni ko'rish
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
 }
 
-export default KirishComponents;
+export default MeningKurslarim;
